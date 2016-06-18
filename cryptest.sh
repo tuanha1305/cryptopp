@@ -478,8 +478,8 @@ if [[ ("$HAVE_X86_AES" -ne "0" && "$HAVE_GDB" -ne "0") ]] && false; then
 	"$MAKE" clean > /dev/null 2>&1
 	rm -f adhoc.cpp > /dev/null 2>&1
 
-	"$MAKE" "${MAKEARGS[@]}" CXX="$CXX" CXXFLAGS="$RELEASE_CXXFLAGS -march=native -maes" rijndael.o 2>&1 | tee -a "$TEST_RESULTS"
-
+	OBJFILE=rijndael.o
+	"$MAKE" "${MAKEARGS[@]}" CXX="$CXX" CXXFLAGS="$RELEASE_CXXFLAGS -march=native -maes" $OBJFILE 2>&1 | tee -a "$TEST_RESULTS"
 	DISASS=$(gdb -batch -ex 'disassemble AESNI_Enc_Block AESNI_Enc_4_Blocks' $OBJFILE 2>/dev/null)
 
 	if [[ ($(echo "$DISASS" | grep -i aesenc) -eq "0") ]]; then
@@ -583,7 +583,7 @@ fi
 # Basic debug build, DISABLE_ASM
 echo
 echo "************************************" | tee -a "$TEST_RESULTS"
-echo "Testing: debug, default CXXFLAGS, DISABLE_ASM" | tee -a "$TEST_RESULTS"
+echo "Testing: debug, DISABLE_ASM" | tee -a "$TEST_RESULTS"
 echo
 
 unset CXXFLAGS
@@ -610,7 +610,7 @@ fi
 # Basic release build, DISABLE_ASM
 echo
 echo "************************************" | tee -a "$TEST_RESULTS"
-echo "Testing: release, default CXXFLAGS, DISABLE_ASM" | tee -a "$TEST_RESULTS"
+echo "Testing: release, DISABLE_ASM" | tee -a "$TEST_RESULTS"
 echo
 
 unset CXXFLAGS
@@ -1037,6 +1037,34 @@ else
 fi
 
 ############################################
+# Debug build, no unaligned data access
+#  This test will not be needed in Crypto++ 5.7 and above
+echo
+echo "************************************" | tee -a "$TEST_RESULTS"
+echo "Testing: debug, NO_UNALIGNED_DATA_ACCESS" | tee -a "$TEST_RESULTS"
+echo
+
+unset CXXFLAGS
+"$MAKE" clean > /dev/null 2>&1
+rm -f adhoc.cpp > /dev/null 2>&1
+
+export CXXFLAGS="$DEBUG_CXXFLAGS -DCRYPTOPP_NO_UNALIGNED_DATA_ACCESS ${RETAINED_CXXFLAGS[@]}"
+"$MAKE" "${MAKEARGS[@]}" CXX="$CXX" static dynamic cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
+
+if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
+	echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
+else
+	./cryptest.exe v 2>&1 | tee -a "$TEST_RESULTS"
+	if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
+		echo "ERROR: failed to execute validation suite" | tee -a "$TEST_RESULTS"
+	fi
+	./cryptest.exe tv all 2>&1 | tee -a "$TEST_RESULTS"
+	if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
+		echo "ERROR: failed to execute test vectors" | tee -a "$TEST_RESULTS"
+	fi
+fi
+
+############################################
 # Release build, no unaligned data access
 #  This test will not be needed in Crypto++ 5.7 and above
 echo
@@ -1150,7 +1178,7 @@ fi
 # Basic debug build, using SHA3/FIPS 202
 echo
 echo "************************************" | tee -a "$TEST_RESULTS"
-echo "Testing: debug, default CXXFLAGS, USE_FIPS_202_SHA3" | tee -a "$TEST_RESULTS"
+echo "Testing: debug, USE_FIPS_202_SHA3" | tee -a "$TEST_RESULTS"
 echo
 
 unset CXXFLAGS
@@ -1177,7 +1205,7 @@ fi
 # Basic release build, using SHA3/FIPS 202
 echo
 echo "************************************" | tee -a "$TEST_RESULTS"
-echo "Testing: release, default CXXFLAGS, USE_FIPS_202_SHA3" | tee -a "$TEST_RESULTS"
+echo "Testing: release, USE_FIPS_202_SHA3" | tee -a "$TEST_RESULTS"
 echo
 
 unset CXXFLAGS
@@ -1836,7 +1864,7 @@ if [[ "$IS_SOLARIS" -ne "0" ]]; then
 		"$MAKE" clean > /dev/null 2>&1
 		rm -f adhoc.cpp > /dev/null 2>&1
 
-		export CXXFLAGS="$DEBUG_CXXFLAGS"
+		export CXXFLAGS="-DDEBUG -g -xO0"
 		"$MAKE" "${MAKEARGS[@]}" CXX=/opt/solstudio12.2/bin/CC static dynamic cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
 
 		if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
@@ -1863,7 +1891,7 @@ if [[ "$IS_SOLARIS" -ne "0" ]]; then
 		"$MAKE" clean > /dev/null 2>&1
 		rm -f adhoc.cpp > /dev/null 2>&1
 
-		export CXXFLAGS="$RELEASE_CXXFLAGS"
+		export CXXFLAGS="-DNDEBUG -g0 -xO2"
 		"$MAKE" "${MAKEARGS[@]}" CXX=/opt/solstudio12.2/bin/CC static dynamic cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
 
 		if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
@@ -1895,7 +1923,7 @@ if [[ "$IS_SOLARIS" -ne "0" ]]; then
 		"$MAKE" clean > /dev/null 2>&1
 		rm -f adhoc.cpp > /dev/null 2>&1
 
-		export CXXFLAGS="$DEBUG_CXXFLAGS"
+		export CXXFLAGS="-DDEBUG -g3 -xO0"
 		"$MAKE" "${MAKEARGS[@]}" CXX=/opt/solarisstudio12.3/bin/CC static dynamic cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
 
 		if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
@@ -1922,7 +1950,7 @@ if [[ "$IS_SOLARIS" -ne "0" ]]; then
 		"$MAKE" clean > /dev/null 2>&1
 		rm -f adhoc.cpp > /dev/null 2>&1
 
-		export CXXFLAGS="$RELEASE_CXXFLAGS"
+		export CXXFLAGS="-DNDEBUG -g2 -xO2"
 		"$MAKE" "${MAKEARGS[@]}" CXX=/opt/solarisstudio12.3/bin/CC static dynamic cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
 
 		if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
@@ -1954,7 +1982,7 @@ if [[ "$IS_SOLARIS" -ne "0" ]]; then
 		"$MAKE" clean > /dev/null 2>&1
 		rm -f adhoc.cpp > /dev/null 2>&1
 
-		export CXXFLAGS="$DEBUG_CXXFLAGS"
+		export CXXFLAGS="-DDEBUG -g3 -xO0"
 		"$MAKE" "${MAKEARGS[@]}" CXX=/opt/solarisstudio12.4/bin/CC static dynamic cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
 
 		if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
@@ -1981,7 +2009,7 @@ if [[ "$IS_SOLARIS" -ne "0" ]]; then
 		"$MAKE" clean > /dev/null 2>&1
 		rm -f adhoc.cpp > /dev/null 2>&1
 
-		export CXXFLAGS="$RELEASE_CXXFLAGS"
+		export CXXFLAGS="-DNDEBUG -g2 -xO2"
 		"$MAKE" "${MAKEARGS[@]}" CXX=/opt/solarisstudio12.4/bin/CC static dynamic cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
 
 		if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
