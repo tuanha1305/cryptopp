@@ -243,20 +243,6 @@ struct DL_Keys_ECDSA
 template <class EC, class H>
 struct ECDSA_RFC6979;
 
-#if 0
-//! ECDSA keys
-template <class EC>
-struct DL_Keys_ECDSA_RFC6979
-{
-	typedef DL_PublicKey_EC<EC> PublicKey;
-	typedef DL_PrivateKey_WithSignaturePairwiseConsistencyTest<DL_PrivateKey_EC<EC>, ECDSA_RFC6979<EC, SHA256> > PrivateKey;
-
-#ifndef CRYPTOPP_MAINTAIN_BACKWARDS_COMPATIBILITY_562
-	virtual ~DL_Keys_ECDSA_RFC6979() {}
-#endif
-};
-#endif
-
 //! ECDSA algorithm
 template <class EC>
 class DL_Algorithm_ECDSA : public DL_Algorithm_GDSA<typename EC::Point>
@@ -274,7 +260,7 @@ template <class EC, class H, bool useDetK = false>
 class DL_Algorithm_ECDSA_RFC6979 : public DL_Algorithm_DSA_RFC6979<typename EC::Point, H>
 {
 public:
-	static const char * CRYPTOPP_API StaticAlgorithmName() {return "ECDSA";}
+	static const char * CRYPTOPP_API StaticAlgorithmName() {return "ECDSA-RFC6979";}
 
 #ifndef CRYPTOPP_MAINTAIN_BACKWARDS_COMPATIBILITY_562
 	virtual ~DL_Algorithm_ECDSA_RFC6979() {}

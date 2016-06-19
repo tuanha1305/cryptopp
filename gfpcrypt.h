@@ -219,7 +219,7 @@ template <class T, class H>
 class DL_Algorithm_DSA_RFC6979 : public DL_ElgamalLikeSignatureAlgorithm<T>
 {
 public:
-	static const char * CRYPTOPP_API StaticAlgorithmName() {return "DSA-1363";}
+	static const char * CRYPTOPP_API StaticAlgorithmName() {return "DSA-RFC6979";}
 
 #ifndef CRYPTOPP_MAINTAIN_BACKWARDS_COMPATIBILITY_562
 	virtual ~DL_Algorithm_DSA_RFC6979() {}
