@@ -181,7 +181,7 @@ protected:
 };
 
 //! GDSA algorithm
-template <class T, class H, bool useDetK>
+template <class T>
 class DL_Algorithm_GDSA : public DL_ElgamalLikeSignatureAlgorithm<T>
 {
 public:
@@ -212,10 +212,39 @@ public:
 		// verify r == (g^u1 * y^u2 mod p) mod q
 		return r == params.ConvertElementToInteger(publicKey.CascadeExponentiateBaseAndPublicElement(u1, u2)) % q;
 	}
+};
 
-	bool UseDeterministicK() const
+//! GDSA algorithm
+template <class T, class H>
+class DL_Algorithm_DSA_RFC6979 : public DL_ElgamalLikeSignatureAlgorithm<T>
+{
+public:
+	static const char * CRYPTOPP_API StaticAlgorithmName() {return "DSA-1363";}
+
+#ifndef CRYPTOPP_MAINTAIN_BACKWARDS_COMPATIBILITY_562
+	virtual ~DL_Algorithm_DSA_RFC6979() {}
+#endif
+
+	void Sign(const DL_GroupParameters<T> &params, const Integer &x, const Integer &k, const Integer &e, Integer &r, Integer &s) const
 	{
-		return useDetK;
+		const Integer &q = params.GetSubgroupOrder();
+		r %= q;
+		Integer kInv = k.InverseMod(q);
+		s = (kInv * (x*r + e)) % q;
+		assert(!!r && !!s);
+	}
+
+	bool Verify(const DL_GroupParameters<T> &params, const DL_PublicKey<T> &publicKey, const Integer &e, const Integer &r, const Integer &s) const
+	{
+		const Integer &q = params.GetSubgroupOrder();
+		if (r>=q || r<1 || s>=q || s<1)
+			return false;
+
+		Integer w = s.InverseMod(q);
+		Integer u1 = (e * w) % q;
+		Integer u2 = (r * w) % q;
+		// verify r == (g^u1 * y^u2 mod p) mod q
+		return r == params.ConvertElementToInteger(publicKey.CascadeExponentiateBaseAndPublicElement(u1, u2)) % q;
 	}
 
 	// Creates a k-value based on RFC 6979. Uses the message to hash and its size,
@@ -351,8 +380,8 @@ private:
 	mutable HMAC<H> K;
 };
 
-CRYPTOPP_DLL_TEMPLATE_CLASS DL_Algorithm_GDSA<Integer, SHA256, false>;
-CRYPTOPP_DLL_TEMPLATE_CLASS DL_Algorithm_GDSA<Integer, SHA256, true>;
+CRYPTOPP_DLL_TEMPLATE_CLASS DL_Algorithm_GDSA<Integer>;
+CRYPTOPP_DLL_TEMPLATE_CLASS DL_Algorithm_DSA_RFC6979<Integer, SHA256>;
 
 //! NR algorithm
 template <class T>
@@ -548,15 +577,28 @@ public:
 };
 
 //! <a href="http://www.weidai.com/scan-mirror/sig.html#DSA-1363">DSA-1363</a>
-template <class H, bool useDetK = false>
+template <class H>
 struct GDSA : public DL_SS<
 	DL_SignatureKeys_GFP,
-	DL_Algorithm_GDSA<Integer, H, useDetK>,
+	DL_Algorithm_GDSA<Integer>,
 	DL_SignatureMessageEncodingMethod_DSA,
 	H>
 {
 #ifndef CRYPTOPP_MAINTAIN_BACKWARDS_COMPATIBILITY_562
 	virtual ~GDSA() {}
+#endif
+};
+
+//! <a href="http://tools.ietf.org/rfc/rfc6979.txt">Deterministic Usage of the Digital Signature Algorithm (DSA) and Elliptic Curve Digital Signature Algorithm (ECDSA)</a>
+template <class H>
+struct DSA_RFC6979 : public DL_SS<
+	DL_SignatureKeys_GFP,
+	DL_Algorithm_DSA_RFC6979<Integer, H>,
+	DL_SignatureMessageEncodingMethod_DSA,
+	H>
+{
+#ifndef CRYPTOPP_MAINTAIN_BACKWARDS_COMPATIBILITY_562
+	virtual ~DSA_RFC6979() {}
 #endif
 };
 
@@ -594,7 +636,7 @@ public:
 	enum {MIN_PRIME_LENGTH = 1024, MAX_PRIME_LENGTH = 3072, PRIME_LENGTH_MULTIPLE = 1024};
 };
 
-template <class H, bool useDetK = false>
+template <class H>
 class DSA2;
 
 //! DSA keys
@@ -610,13 +652,33 @@ struct DL_Keys_DSA
 
 //! <a href="http://en.wikipedia.org/wiki/Digital_Signature_Algorithm">DSA</a>, as specified in FIPS 186-3
 // class named DSA2 instead of DSA for backwards compatibility (DSA was a non-template class)
-template <class H, bool useDetK>
+template <class H>
 class DSA2 : public DL_SS<
 	DL_Keys_DSA,
-	DL_Algorithm_GDSA<Integer, H, useDetK>,
+	DL_Algorithm_GDSA<Integer>,
 	DL_SignatureMessageEncodingMethod_DSA,
 	H,
-	DSA2<H, useDetK> >
+	DSA2<H> >
+{
+public:
+	static std::string CRYPTOPP_API StaticAlgorithmName() {return "DSA/" + (std::string)H::StaticAlgorithmName();}
+
+#ifdef CRYPTOPP_MAINTAIN_BACKWARDS_COMPATIBILITY
+	enum {MIN_PRIME_LENGTH = 1024, MAX_PRIME_LENGTH = 3072, PRIME_LENGTH_MULTIPLE = 1024};
+#endif
+
+#ifndef CRYPTOPP_MAINTAIN_BACKWARDS_COMPATIBILITY_562
+	virtual ~DSA2() {}
+#endif
+};
+
+template <class H>
+class DSA2_RFC6979 : public DL_SS<
+	DL_Keys_DSA,
+	DL_Algorithm_DSA_RFC6979<Integer, H>,
+	DL_SignatureMessageEncodingMethod_DSA,
+	H,
+	DSA2<H> >
 {
 public:
 	static std::string CRYPTOPP_API StaticAlgorithmName() {return "DSA/" + (std::string)H::StaticAlgorithmName();}

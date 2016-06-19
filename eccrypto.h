@@ -36,6 +36,10 @@ public:
 	typedef Point Element;
 	typedef IncompatibleCofactorMultiplication DefaultCofactorOption;
 
+#ifndef CRYPTOPP_MAINTAIN_BACKWARDS_COMPATIBILITY_562
+	virtual ~DL_GroupParameters_EC() {}
+#endif
+
 	DL_GroupParameters_EC() : m_compress(false), m_encodeAsOID(false) {}
 	DL_GroupParameters_EC(const OID &oid)
 		: m_compress(false), m_encodeAsOID(false) {Initialize(oid);}
@@ -130,10 +134,6 @@ public:
 	const Integer& GetBasePointOrder() const {return this->GetSubgroupOrder();}
 	void LoadRecommendedParameters(const OID &oid) {Initialize(oid);}
 #endif
-	
-#ifndef CRYPTOPP_MAINTAIN_BACKWARDS_COMPATIBILITY_562
-	virtual ~DL_GroupParameters_EC() {}
-#endif
 
 protected:
 	unsigned int FieldElementLength() const {return GetCurve().GetField().MaxElementByteLength();}
@@ -152,6 +152,10 @@ class DL_PublicKey_EC : public DL_PublicKeyImpl<DL_GroupParameters_EC<EC> >
 public:
 	typedef typename EC::Point Element;
 
+#ifndef CRYPTOPP_MAINTAIN_BACKWARDS_COMPATIBILITY_562
+	virtual ~DL_PublicKey_EC() {}
+#endif
+
 	void Initialize(const DL_GroupParameters_EC<EC> &params, const Element &Q)
 		{this->AccessGroupParameters() = params; this->SetPublicElement(Q);}
 	void Initialize(const EC &ec, const Element &G, const Integer &n, const Element &Q)
@@ -160,10 +164,6 @@ public:
 	// X509PublicKey
 	void BERDecodePublicKey(BufferedTransformation &bt, bool parametersPresent, size_t size);
 	void DEREncodePublicKey(BufferedTransformation &bt) const;
-	
-#ifndef CRYPTOPP_MAINTAIN_BACKWARDS_COMPATIBILITY_562
-	virtual ~DL_PublicKey_EC() {}
-#endif
 };
 
 //! EC private key
@@ -172,6 +172,10 @@ class DL_PrivateKey_EC : public DL_PrivateKeyImpl<DL_GroupParameters_EC<EC> >
 {
 public:
 	typedef typename EC::Point Element;
+
+#ifndef CRYPTOPP_MAINTAIN_BACKWARDS_COMPATIBILITY_562
+	virtual ~DL_PrivateKey_EC() {}
+#endif
 
 	void Initialize(const DL_GroupParameters_EC<EC> &params, const Integer &x)
 		{this->AccessGroupParameters() = params; this->SetPrivateExponent(x);}
@@ -185,10 +189,6 @@ public:
 	// PKCS8PrivateKey
 	void BERDecodePrivateKey(BufferedTransformation &bt, bool parametersPresent, size_t size);
 	void DEREncodePrivateKey(BufferedTransformation &bt) const;
-	
-#ifndef CRYPTOPP_MAINTAIN_BACKWARDS_COMPATIBILITY_562
-	virtual ~DL_PrivateKey_EC() {}
-#endif
 };
 
 //! Elliptic Curve Diffie-Hellman, AKA <a href="http://www.weidai.com/scan-mirror/ka.html#ECDH">ECDH</a>
@@ -196,7 +196,7 @@ template <class EC, class COFACTOR_OPTION = CPP_TYPENAME DL_GroupParameters_EC<E
 struct ECDH
 {
 	typedef DH_Domain<DL_GroupParameters_EC<EC>, COFACTOR_OPTION> Domain;
-	
+
 #ifndef CRYPTOPP_MAINTAIN_BACKWARDS_COMPATIBILITY_562
 	virtual ~ECDH() {}
 #endif
@@ -207,7 +207,7 @@ template <class EC, class COFACTOR_OPTION = CPP_TYPENAME DL_GroupParameters_EC<E
 struct ECMQV
 {
 	typedef MQV_Domain<DL_GroupParameters_EC<EC>, COFACTOR_OPTION> Domain;
-	
+
 #ifndef CRYPTOPP_MAINTAIN_BACKWARDS_COMPATIBILITY_562
 	virtual ~ECMQV() {}
 #endif
@@ -219,13 +219,13 @@ struct DL_Keys_EC
 {
 	typedef DL_PublicKey_EC<EC> PublicKey;
 	typedef DL_PrivateKey_EC<EC> PrivateKey;
-	
+
 #ifndef CRYPTOPP_MAINTAIN_BACKWARDS_COMPATIBILITY_562
 	virtual ~DL_Keys_EC() {}
 #endif
 };
 
-template <class EC, class H, bool useDetK = false>
+template <class EC, class H>
 struct ECDSA;
 
 //! ECDSA keys
@@ -234,21 +234,50 @@ struct DL_Keys_ECDSA
 {
 	typedef DL_PublicKey_EC<EC> PublicKey;
 	typedef DL_PrivateKey_WithSignaturePairwiseConsistencyTest<DL_PrivateKey_EC<EC>, ECDSA<EC, SHA256> > PrivateKey;
-	
+
 #ifndef CRYPTOPP_MAINTAIN_BACKWARDS_COMPATIBILITY_562
 	virtual ~DL_Keys_ECDSA() {}
 #endif
 };
 
+template <class EC, class H>
+struct ECDSA_RFC6979;
+
+#if 0
+//! ECDSA keys
+template <class EC>
+struct DL_Keys_ECDSA_RFC6979
+{
+	typedef DL_PublicKey_EC<EC> PublicKey;
+	typedef DL_PrivateKey_WithSignaturePairwiseConsistencyTest<DL_PrivateKey_EC<EC>, ECDSA_RFC6979<EC, SHA256> > PrivateKey;
+
+#ifndef CRYPTOPP_MAINTAIN_BACKWARDS_COMPATIBILITY_562
+	virtual ~DL_Keys_ECDSA_RFC6979() {}
+#endif
+};
+#endif
+
 //! ECDSA algorithm
-template <class EC, class H, bool useDetK = false>
-class DL_Algorithm_ECDSA : public DL_Algorithm_GDSA<typename EC::Point, H, useDetK>
+template <class EC>
+class DL_Algorithm_ECDSA : public DL_Algorithm_GDSA<typename EC::Point>
 {
 public:
 	static const char * CRYPTOPP_API StaticAlgorithmName() {return "ECDSA";}
-	
+
 #ifndef CRYPTOPP_MAINTAIN_BACKWARDS_COMPATIBILITY_562
 	virtual ~DL_Algorithm_ECDSA() {}
+#endif
+};
+
+//! ECDSA algorithm
+template <class EC, class H, bool useDetK = false>
+class DL_Algorithm_ECDSA_RFC6979 : public DL_Algorithm_DSA_RFC6979<typename EC::Point, H>
+{
+public:
+	static const char * CRYPTOPP_API StaticAlgorithmName() {return "ECDSA";}
+
+#ifndef CRYPTOPP_MAINTAIN_BACKWARDS_COMPATIBILITY_562
+	virtual ~DL_Algorithm_ECDSA_RFC6979() {}
 #endif
 };
 
@@ -258,18 +287,27 @@ class DL_Algorithm_ECNR : public DL_Algorithm_NR<typename EC::Point>
 {
 public:
 	static const char * CRYPTOPP_API StaticAlgorithmName() {return "ECNR";}
-	
+
 #ifndef CRYPTOPP_MAINTAIN_BACKWARDS_COMPATIBILITY_562
 	virtual ~DL_Algorithm_ECNR() {}
 #endif
 };
 
 //! <a href="http://www.weidai.com/scan-mirror/sig.html#ECDSA">ECDSA</a>
-template <class EC, class H, bool useDetK>
-struct ECDSA : public DL_SS<DL_Keys_ECDSA<EC>, DL_Algorithm_ECDSA<EC, H, useDetK>, DL_SignatureMessageEncodingMethod_DSA, H>
+template <class EC, class H>
+struct ECDSA : public DL_SS<DL_Keys_ECDSA<EC>, DL_Algorithm_ECDSA<EC>, DL_SignatureMessageEncodingMethod_DSA, H>
 {
 #ifndef CRYPTOPP_MAINTAIN_BACKWARDS_COMPATIBILITY_562
 	virtual ~ECDSA() {}
+#endif
+};
+
+//! <a href="http://tools.ietf.org/rfc/rfc6979.txt">Deterministic Usage of the Digital Signature Algorithm (DSA) and Elliptic Curve Digital Signature Algorithm (ECDSA)</a>
+template <class EC, class H>
+struct ECDSA_RFC6979 : public DL_SS<DL_Keys_ECDSA<EC>, DL_Algorithm_ECDSA_RFC6979<EC, H>, DL_SignatureMessageEncodingMethod_DSA, H>
+{
+#ifndef CRYPTOPP_MAINTAIN_BACKWARDS_COMPATIBILITY_562
+	virtual ~ECDSA_RFC6979() {}
 #endif
 };
 
@@ -296,18 +334,12 @@ struct ECIES
 		ECIES<EC> >
 {
 	static std::string CRYPTOPP_API StaticAlgorithmName() {return "ECIES";}	// TODO: fix this after name is standardized
-	
+
 #ifndef CRYPTOPP_MAINTAIN_BACKWARDS_COMPATIBILITY_562
 	virtual ~ECIES() {}
 #endif
-	
-#if (CRYPTOPP_GCC_VERSION >= 40500) || (CRYPTOPP_CLANG_VERSION >= 20800)
-} __attribute__((deprecated ("ECIES will be changing in the near future due to (1) an implementation bug and (2) an interop issue")));
-#elif (CRYPTOPP_GCC_VERSION)
-} __attribute__((deprecated));
-#else
-};
-#endif
+
+} CRYPTOPP_DEPRECATED("ECIES will be changing in the near future due to an interop issue");
 
 NAMESPACE_END
 
@@ -327,10 +359,10 @@ CRYPTOPP_DLL_TEMPLATE_CLASS DL_PrivateKeyImpl<DL_GroupParameters_EC<ECP> >;
 CRYPTOPP_DLL_TEMPLATE_CLASS DL_PrivateKeyImpl<DL_GroupParameters_EC<EC2N> >;
 CRYPTOPP_DLL_TEMPLATE_CLASS DL_PrivateKey_EC<ECP>;
 CRYPTOPP_DLL_TEMPLATE_CLASS DL_PrivateKey_EC<EC2N>;
-CRYPTOPP_DLL_TEMPLATE_CLASS DL_Algorithm_GDSA<ECP::Point, SHA256, false>;
-CRYPTOPP_DLL_TEMPLATE_CLASS DL_Algorithm_GDSA<ECP::Point, SHA256, true>;
-CRYPTOPP_DLL_TEMPLATE_CLASS DL_Algorithm_GDSA<EC2N::Point, SHA256, false>;
-CRYPTOPP_DLL_TEMPLATE_CLASS DL_Algorithm_GDSA<EC2N::Point, SHA256, true>;
+CRYPTOPP_DLL_TEMPLATE_CLASS DL_Algorithm_GDSA<ECP::Point>;
+CRYPTOPP_DLL_TEMPLATE_CLASS DL_Algorithm_GDSA<EC2N::Point>;
+CRYPTOPP_DLL_TEMPLATE_CLASS DL_Algorithm_DSA_RFC6979<ECP::Point, SHA256>;
+CRYPTOPP_DLL_TEMPLATE_CLASS DL_Algorithm_DSA_RFC6979<EC2N::Point, SHA256>;
 CRYPTOPP_DLL_TEMPLATE_CLASS DL_PrivateKey_WithSignaturePairwiseConsistencyTest<DL_PrivateKey_EC<ECP>, ECDSA<ECP, SHA256> >;
 CRYPTOPP_DLL_TEMPLATE_CLASS DL_PrivateKey_WithSignaturePairwiseConsistencyTest<DL_PrivateKey_EC<EC2N>, ECDSA<EC2N, SHA256> >;
 
