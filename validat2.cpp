@@ -486,6 +486,8 @@ bool ValidateDSA_RFC6979()
 {
 	cout << "\nDSA (RFC6979) validation suite running...\n\n";
 
+	// TODO: add three to five tests here to verify stack-based is OK.
+
 	return RunTestDataFile(CRYPTOPP_DATA_DIR "TestVectors/dsa_rfc6979.txt", g_nullNameValuePairs);
 }
 
@@ -835,6 +837,8 @@ bool ValidateECDSA()
 bool ValidateECDSA_RFC6979()
 {
 	cout << "\nECDSA (RFC6979) validation suite running...\n\n";
+
+	// TODO: add three to five tests here to verify stack-based is OK.
 
 	// return RunTestDataFile(CRYPTOPP_DATA_DIR "TestVectors/ecdsa_rfc6979.txt", g_nullNameValuePairs);
 	return true;
