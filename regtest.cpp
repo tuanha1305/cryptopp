@@ -133,17 +133,17 @@ void RegisterFactories()
 	RegisterSignatureSchemeDefaultFactories<RWSS<P1363_EMSA2, SHA1> >("RW/EMSA2(SHA-1)");
 	RegisterSignatureSchemeDefaultFactories<RSASS<PSS, SHA1> >("RSA/PSS-MGF1(SHA-1)");
 
-	RegisterSignatureSchemeDefaultFactories<DSA2_RFC6979<SHA> >();
-	RegisterSignatureSchemeDefaultFactories<DSA2_RFC6979<SHA224> >();
-	RegisterSignatureSchemeDefaultFactories<DSA2_RFC6979<SHA256> >();
-	RegisterSignatureSchemeDefaultFactories<DSA2_RFC6979<SHA384> >();
-	RegisterSignatureSchemeDefaultFactories<DSA2_RFC6979<SHA512> >();
-	RegisterSignatureSchemeDefaultFactories<ECDSA_RFC6979<ECP,SHA256> >();
-	RegisterSignatureSchemeDefaultFactories<ECDSA_RFC6979<ECP,SHA384> >();
-	RegisterSignatureSchemeDefaultFactories<ECDSA_RFC6979<ECP,SHA512> >();
-	RegisterSignatureSchemeDefaultFactories<ECDSA_RFC6979<EC2N,SHA256> >();
-	RegisterSignatureSchemeDefaultFactories<ECDSA_RFC6979<EC2N,SHA384> >();
-	RegisterSignatureSchemeDefaultFactories<ECDSA_RFC6979<EC2N,SHA512> >();
+	RegisterSignatureSchemeDefaultFactories<DSA2_RFC6979<SHA> >("DSA-RFC6979/SHA-1");
+	RegisterSignatureSchemeDefaultFactories<DSA2_RFC6979<SHA224> >("DSA-RFC6979/SHA-224");
+	RegisterSignatureSchemeDefaultFactories<DSA2_RFC6979<SHA256> >("DSA-RFC6979/SHA-256");
+	RegisterSignatureSchemeDefaultFactories<DSA2_RFC6979<SHA384> >("DSA-RFC6979/SHA-384");
+	RegisterSignatureSchemeDefaultFactories<DSA2_RFC6979<SHA512> >("DSA-RFC6979/SHA-512");
+	// RegisterSignatureSchemeDefaultFactories<ECDSA_RFC6979<ECP,SHA256> >();
+	// RegisterSignatureSchemeDefaultFactories<ECDSA_RFC6979<ECP,SHA384> >();
+	// RegisterSignatureSchemeDefaultFactories<ECDSA_RFC6979<ECP,SHA512> >();
+	// RegisterSignatureSchemeDefaultFactories<ECDSA_RFC6979<EC2N,SHA256> >();
+	// RegisterSignatureSchemeDefaultFactories<ECDSA_RFC6979<EC2N,SHA384> >();
+	// RegisterSignatureSchemeDefaultFactories<ECDSA_RFC6979<EC2N,SHA512> >();
 
 	RegisterSymmetricCipherDefaultFactories<SEAL<> >();
 	RegisterSymmetricCipherDefaultFactories<ECB_Mode<SHACAL2> >();
