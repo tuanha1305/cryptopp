@@ -219,7 +219,7 @@ template <class T, class H>
 class DL_Algorithm_DSA_RFC6979 : public DL_ElgamalLikeSignatureAlgorithm<T>
 {
 public:
-	static const char * CRYPTOPP_API StaticAlgorithmName() {return "DSA-RFC6979";}
+	static const char * CRYPTOPP_API StaticAlgorithmName() { return "DSA-RFC6979";}
 
 #ifndef CRYPTOPP_MAINTAIN_BACKWARDS_COMPATIBILITY_562
 	virtual ~DL_Algorithm_DSA_RFC6979() {}
@@ -319,7 +319,7 @@ public:
 protected:
 	// RFC 6979 support function. Takes a set of bits, takes the most significant
 	// bytes (subject to a given bit limit), and turns them into an integer.
-	Integer bits2int(const SecByteBlock& bits, const unsigned int& qlen) const
+	Integer bits2int(const SecByteBlock& bits, const unsigned int qlen) const
 	{
 		Integer retVal(bits, bits.size());
 		if((retVal.ByteCount() * 8) > qlen)
@@ -332,7 +332,7 @@ protected:
 
 	// RFC 6979 support function. Takes an integer and converts it into bytes that
 	// are the same length as an elliptic curve's order.
-	SecByteBlock int2octets(const Integer& val, const unsigned int& rlenBytes) const
+	SecByteBlock int2octets(const Integer& val, const unsigned int rlenBytes) const
 	{
 		SecByteBlock octetBlock(val.ByteCount());
 		val.Encode(octetBlock, val.ByteCount());
@@ -681,14 +681,14 @@ class DSA2_RFC6979 : public DL_SS<
 	DSA2<H> >
 {
 public:
-	static std::string CRYPTOPP_API StaticAlgorithmName() {return "DSA/" + (std::string)H::StaticAlgorithmName();}
+	static std::string CRYPTOPP_API StaticAlgorithmName() {return "DSA-RFC6979/" + (std::string)H::StaticAlgorithmName();}
 
 #ifdef CRYPTOPP_MAINTAIN_BACKWARDS_COMPATIBILITY
 	enum {MIN_PRIME_LENGTH = 1024, MAX_PRIME_LENGTH = 3072, PRIME_LENGTH_MULTIPLE = 1024};
 #endif
 
 #ifndef CRYPTOPP_MAINTAIN_BACKWARDS_COMPATIBILITY_562
-	virtual ~DSA2() {}
+	virtual ~DSA2_RFC6979() {}
 #endif
 };
 

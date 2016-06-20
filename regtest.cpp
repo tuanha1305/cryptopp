@@ -53,6 +53,7 @@
 #include "sha3.h"
 #include "blake2.h"
 #include "hkdf.h"
+#include "eccrypto.h"
 
 // Aggressive stack checking with VS2005 SP1 and above.
 #if (CRYPTOPP_MSC_VERSION >= 1410)
@@ -131,6 +132,19 @@ void RegisterFactories()
 	RegisterSignatureSchemeDefaultFactories<ESIGN<SHA1> >("ESIGN/EMSA5-MGF1(SHA-1)");
 	RegisterSignatureSchemeDefaultFactories<RWSS<P1363_EMSA2, SHA1> >("RW/EMSA2(SHA-1)");
 	RegisterSignatureSchemeDefaultFactories<RSASS<PSS, SHA1> >("RSA/PSS-MGF1(SHA-1)");
+
+	RegisterSignatureSchemeDefaultFactories<DSA2_RFC6979<SHA> >();
+	RegisterSignatureSchemeDefaultFactories<DSA2_RFC6979<SHA224> >();
+	RegisterSignatureSchemeDefaultFactories<DSA2_RFC6979<SHA256> >();
+	RegisterSignatureSchemeDefaultFactories<DSA2_RFC6979<SHA384> >();
+	RegisterSignatureSchemeDefaultFactories<DSA2_RFC6979<SHA512> >();
+	RegisterSignatureSchemeDefaultFactories<ECDSA_RFC6979<ECP,SHA256> >();
+	RegisterSignatureSchemeDefaultFactories<ECDSA_RFC6979<ECP,SHA384> >();
+	RegisterSignatureSchemeDefaultFactories<ECDSA_RFC6979<ECP,SHA512> >();
+	RegisterSignatureSchemeDefaultFactories<ECDSA_RFC6979<EC2N,SHA256> >();
+	RegisterSignatureSchemeDefaultFactories<ECDSA_RFC6979<EC2N,SHA384> >();
+	RegisterSignatureSchemeDefaultFactories<ECDSA_RFC6979<EC2N,SHA512> >();
+
 	RegisterSymmetricCipherDefaultFactories<SEAL<> >();
 	RegisterSymmetricCipherDefaultFactories<ECB_Mode<SHACAL2> >();
 	RegisterSymmetricCipherDefaultFactories<ECB_Mode<Camellia> >();

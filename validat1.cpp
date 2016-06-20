@@ -154,6 +154,7 @@ bool ValidateAll(bool thorough)
 	pass=ValidateDLIES() && pass;
 	pass=ValidateNR() && pass;
 	pass=ValidateDSA(thorough) && pass;
+	pass=ValidateDSA_RFC6979() && pass;
 	pass=ValidateLUC() && pass;
 	pass=ValidateLUC_DH() && pass;
 	pass=ValidateLUC_DL() && pass;
@@ -161,10 +162,10 @@ bool ValidateAll(bool thorough)
 	pass=ValidateRabin() && pass;
 	pass=ValidateRW() && pass;
 //	pass=ValidateBlumGoldwasser() && pass;
-	pass=ValidateRFC6979() && pass;
 	pass=ValidateECP() && pass;
 	pass=ValidateEC2N() && pass;
 	pass=ValidateECDSA() && pass;
+	pass=ValidateECDSA_RFC6979() && pass;
 	pass=ValidateESIGN() && pass;
 
 	if (pass)

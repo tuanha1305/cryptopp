@@ -76,6 +76,7 @@ bool ValidateElGamal();
 bool ValidateDLIES();
 bool ValidateNR();
 bool ValidateDSA(bool thorough);
+bool ValidateDSA_RFC6979();
 bool ValidateLUC();
 bool ValidateLUC_DL();
 bool ValidateLUC_DH();
@@ -83,10 +84,10 @@ bool ValidateXTR_DH();
 bool ValidateRabin();
 bool ValidateRW();
 //bool ValidateBlumGoldwasser();
-bool ValidateRFC6979();
 bool ValidateECP();
 bool ValidateEC2N();
 bool ValidateECDSA();
+bool ValidateECDSA_RFC6979();
 bool ValidateESIGN();
 
 #if !defined(NDEBUG)

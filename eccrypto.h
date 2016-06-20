@@ -255,8 +255,8 @@ public:
 #endif
 };
 
-//! ECDSA algorithm
-template <class EC, class H, bool useDetK = false>
+//! ECDSA algorithm with determistic signing
+template <class EC, class H>
 class DL_Algorithm_ECDSA_RFC6979 : public DL_Algorithm_DSA_RFC6979<typename EC::Point, H>
 {
 public:
