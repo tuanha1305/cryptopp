@@ -639,7 +639,7 @@ public:
 template <class H>
 class DSA2;
 
-//! DSA keys
+//! \brief DSA keys
 struct DL_Keys_DSA
 {
 	typedef DL_PublicKey_GFP<DL_GroupParameters_DSA> PublicKey;
@@ -647,6 +647,17 @@ struct DL_Keys_DSA
 
 #ifndef CRYPTOPP_MAINTAIN_BACKWARDS_COMPATIBILITY_562
 	virtual ~DL_Keys_DSA() {}
+#endif
+};
+
+//! \brief DSA-RFC6979 keys
+struct DL_Keys_DSA_RFC6979
+{
+	typedef DL_PublicKey_GFP<DL_GroupParameters_DSA> PublicKey;
+	typedef DL_PrivateKey_GFP<DL_GroupParameters_DSA> PrivateKey;
+
+#ifndef CRYPTOPP_MAINTAIN_BACKWARDS_COMPATIBILITY_562
+	virtual ~DL_Keys_DSA_RFC6979() {}
 #endif
 };
 
@@ -674,11 +685,11 @@ public:
 
 template <class H>
 class DSA2_RFC6979 : public DL_SS<
-	DL_Keys_DSA,
+	DL_Keys_DSA_RFC6979,
 	DL_Algorithm_DSA_RFC6979<Integer, H>,
 	DL_SignatureMessageEncodingMethod_DSA,
 	H,
-	DSA2<H> >
+	DSA2_RFC6979<H> >
 {
 public:
 	static std::string CRYPTOPP_API StaticAlgorithmName() {return "DSA-RFC6979/" + (std::string)H::StaticAlgorithmName();}
