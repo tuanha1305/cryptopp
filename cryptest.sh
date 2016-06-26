@@ -376,8 +376,9 @@ if [[ (-z "$HAVE_VALGRIND") ]]; then
 	HAVE_VALGRIND=$(which valgrind 2>&1 | "$GREP" -v "no valgrind" | "$GREP" -i -c valgrind)
 fi
 
-# Try to find a symbolizer for As an
+# Try to find a symbolizer for Asan
 if [[ (-z "$HAVE_SYMBOLIZE") ]]; then
+	HAVE_SYMBOLIZE=0
 	if [[ (! -z "$ASAN_SYMBOLIZER_PATH") ]]; then
 		HAVE_SYMBOLIZE=1
 		ASAN_SYMBOLIZE="$ASAN_SYMBOLIZER_PATH"
@@ -385,12 +386,16 @@ if [[ (-z "$HAVE_SYMBOLIZE") ]]; then
 
 	if [[ ("$HAVE_SYMBOLIZE" -eq "0") ]]; then
 		HAVE_SYMBOLIZE=$(which llvm-symbolizer 2>&1 | "$GREP" -v "no llvm-symbolizer" | "$GREP" -i -c llvm-symbolizer)
-		ASAN_SYMBOLIZE=llvm-symbolizer
+		ASAN_SYMBOLIZE="llvm-symbolizer"
 	fi
 
 	if [[ ("$HAVE_SYMBOLIZE" -eq "0") ]]; then
 		HAVE_SYMBOLIZE=$(which asan_symbolize 2>&1 | "$GREP" -v "no asan_symbolize" | "$GREP" -i -c "asan_symbolize")
-		"$ASAN_SYMBOLIZE"=asan_symbolize
+		ASAN_SYMBOLIZE="asan_symbolize"
+	fi
+
+	if [[ ("$HAVE_SYMBOLIZE" -eq "0") ]]; then
+		ASAN_SYMBOLIZE=
 	fi
 fi
 
