@@ -725,53 +725,53 @@ CRYPTOPP_NAKED void CRYPTOPP_FASTCALL Rijndael_Enc_AdvancedProcessBlocks(void *l
 	AS2(	psrldq	xmm2, 4)
 	AS2(	movd	edi, xmm2)
 	AS2(	psrldq	xmm2, 4)
-		MXOR(		1, al, 0)		// 0
-		XOR(		edx, ah, 1)		// 1
+	MXOR(		1, al, 0)		// 0
+	XOR(		edx, ah, 1)		// 1
 	AS2(	shr		eax, 16)
-		XOR(		ecx, al, 2)		// 2
-		XOR(		ebx, ah, 3)		// 3
+	XOR(		ecx, al, 2)		// 2
+	XOR(		ebx, ah, 3)		// 3
 	AS2(	mov		eax, edi)
 	AS2(	movd	edi, xmm2)
 	AS2(	psrldq	xmm2, 4)
-		XOR(		ebx, al, 0)		// 4
-		MXOR(		1, ah, 1)		// 5
+	XOR(		ebx, al, 0)		// 4
+	MXOR(		1, ah, 1)		// 5
 	AS2(	shr		eax, 16)
-		XOR(		edx, al, 2)		// 6
-		XOR(		ecx, ah, 3)		// 7
+	XOR(		edx, al, 2)		// 6
+	XOR(		ecx, ah, 3)		// 7
 	AS2(	mov		eax, edi)
 	AS2(	movd	edi, xmm2)
-		XOR(		ecx, al, 0)		// 8
-		XOR(		ebx, ah, 1)		// 9
+	XOR(		ecx, al, 0)		// 8
+	XOR(		ebx, ah, 1)		// 9
 	AS2(	shr		eax, 16)
-		MXOR(		1, al, 2)		// 10
-		XOR(		edx, ah, 3)		// 11
+	MXOR(		1, al, 2)		// 10
+	XOR(		edx, ah, 3)		// 11
 	AS2(	mov		eax, edi)
-		XOR(		edx, al, 0)		// 12
-		XOR(		ecx, ah, 1)		// 13
+	XOR(		edx, al, 0)		// 12
+	XOR(		ecx, ah, 1)		// 13
 	AS2(	shr		eax, 16)
-		XOR(		ebx, al, 2)		// 14
+	XOR(		ebx, al, 2)		// 14
 	AS2(	psrldq	xmm2, 3)
 
 	// partial second round, in: ebx(4,5,6,7), ecx(8,9,10,11), edx(12,13,14,15), out: eax, ebx, edi, mm0
 	AS2(	mov		eax, [L_KEY12+0*4])
 	AS2(	mov		edi, [L_KEY12+2*4])
 	AS2(	MOVD	MM(0), [L_KEY12+3*4])
-		MXOR(	0, cl, 3)	/* 11 */
-		XOR(	edi, bl, 3)	/* 7 */
-		MXOR(	0, bh, 2)	/* 6 */
+	MXOR(	0, cl, 3)	/* 11 */
+	XOR(	edi, bl, 3)	/* 7 */
+	MXOR(	0, bh, 2)	/* 6 */
 	AS2(	shr ebx, 16)	/* 4,5 */
-		XOR(	eax, bl, 1)	/* 5 */
-		MOV(	ebx, bh, 0)	/* 4 */
+	XOR(	eax, bl, 1)	/* 5 */
+	MOV(	ebx, bh, 0)	/* 4 */
 	AS2(	xor		ebx, [L_KEY12+1*4])
-		XOR(	eax, ch, 2)	/* 10 */
+	XOR(	eax, ch, 2)	/* 10 */
 	AS2(	shr ecx, 16)	/* 8,9 */
-		XOR(	eax, dl, 3)	/* 15 */
-		XOR(	ebx, dh, 2)	/* 14 */
+	XOR(	eax, dl, 3)	/* 15 */
+	XOR(	ebx, dh, 2)	/* 14 */
 	AS2(	shr edx, 16)	/* 12,13 */
-		XOR(	edi, ch, 0)	/* 8 */
-		XOR(	ebx, cl, 1)	/* 9 */
-		XOR(	edi, dl, 1)	/* 13 */
-		MXOR(	0, dh, 0)	/* 12 */
+	XOR(	edi, ch, 0)	/* 8 */
+	XOR(	ebx, cl, 1)	/* 9 */
+	XOR(	edi, dl, 1)	/* 13 */
+	MXOR(	0, dh, 0)	/* 12 */
 
 	AS2(	movd	ecx, xmm2)
 	AS2(	MOVD	edx, MM(1))
@@ -801,32 +801,32 @@ CRYPTOPP_NAKED void CRYPTOPP_FASTCALL Rijndael_Enc_AdvancedProcessBlocks(void *l
 	AS2(	psrldq	xmm2, 4)
 	AS2(	movd	edi, xmm2)
 	AS2(	psrldq	xmm2, 4)
-		MXOR(		1, al, 0)		// 0
-		XOR(		edx, ah, 1)		// 1
+	MXOR(		1, al, 0)		// 0
+	XOR(		edx, ah, 1)		// 1
 	AS2(	shr		eax, 16)
-		XOR(		ecx, al, 2)		// 2
-		XOR(		ebx, ah, 3)		// 3
+	XOR(		ecx, al, 2)		// 2
+	XOR(		ebx, ah, 3)		// 3
 	AS2(	mov		eax, edi)
 	AS2(	movd	edi, xmm2)
 	AS2(	psrldq	xmm2, 4)
-		XOR(		ebx, al, 0)		// 4
-		MXOR(		1, ah, 1)		// 5
+	XOR(		ebx, al, 0)		// 4
+	MXOR(		1, ah, 1)		// 5
 	AS2(	shr		eax, 16)
-		XOR(		edx, al, 2)		// 6
-		XOR(		ecx, ah, 3)		// 7
+	XOR(		edx, al, 2)		// 6
+	XOR(		ecx, ah, 3)		// 7
 	AS2(	mov		eax, edi)
 	AS2(	movd	edi, xmm2)
-		XOR(		ecx, al, 0)		// 8
-		XOR(		ebx, ah, 1)		// 9
+	XOR(		ecx, al, 0)		// 8
+	XOR(		ebx, ah, 1)		// 9
 	AS2(	shr		eax, 16)
-		MXOR(		1, al, 2)		// 10
-		XOR(		edx, ah, 3)		// 11
+	MXOR(		1, al, 2)		// 10
+	XOR(		edx, ah, 3)		// 11
 	AS2(	mov		eax, edi)
-		XOR(		edx, al, 0)		// 12
-		XOR(		ecx, ah, 1)		// 13
+	XOR(		edx, al, 0)		// 12
+	XOR(		ecx, ah, 1)		// 13
 	AS2(	shr		eax, 16)
-		XOR(		ebx, al, 2)		// 14
-		MXOR(		1, ah, 3)		// 15
+	XOR(		ebx, al, 2)		// 14
+	MXOR(		1, ah, 3)		// 15
 	AS2(	MOVD	eax, MM(1))
 
 	AS2(	add		L_REG, [L_KEYS_BEGIN])
@@ -850,12 +850,12 @@ CRYPTOPP_NAKED void CRYPTOPP_FASTCALL Rijndael_Enc_AdvancedProcessBlocks(void *l
 #endif
 	// remaining part of second round, in: edx(previous round),esi(keyed counter byte) eax,ebx,[L_SAVED_X+2*4],[L_SAVED_X+3*4], out: eax,ebx,ecx,edx
 	AS2(	xor		edx, DWORD PTR [AS_REG_7+WORD_REG(cx)*8+3])
-		XOR(		ebx, dl, 3)
-		MOV(		ecx, dh, 2)
+	XOR(		ebx, dl, 3)
+	MOV(		ecx, dh, 2)
 	AS2(	shr		edx, 16)
 	AS2(	xor		ecx, [L_SAVED_X+2*4])
-		XOR(		eax, dh, 0)
-		MOV(		edx, dl, 1)
+	XOR(		eax, dh, 0)
+	MOV(		edx, dl, 1)
 	AS2(	xor		edx, [L_SAVED_X+3*4])
 
 	AS2(	add		L_REG, [L_KEYS_BEGIN])
@@ -867,27 +867,27 @@ CRYPTOPP_NAKED void CRYPTOPP_FASTCALL Rijndael_Enc_AdvancedProcessBlocks(void *l
 // in: eax(0,1,2,3), ebx(4,5,6,7), ecx(8,9,10,11), edx(12,13,14,15)
 // out: eax, ebx, edi, mm0
 #define ROUND()		\
-		MXOR(	0, cl, 3)	/* 11 */\
+	MXOR(	0, cl, 3)	/* 11 */\
 	AS2(	mov	cl, al)		/* 8,9,10,3 */\
-		XOR(	edi, ah, 2)	/* 2 */\
+	XOR(	edi, ah, 2)	/* 2 */\
 	AS2(	shr eax, 16)	/* 0,1 */\
-		XOR(	edi, bl, 3)	/* 7 */\
-		MXOR(	0, bh, 2)	/* 6 */\
+	XOR(	edi, bl, 3)	/* 7 */\
+	MXOR(	0, bh, 2)	/* 6 */\
 	AS2(	shr ebx, 16)	/* 4,5 */\
-		MXOR(	0, al, 1)	/* 1 */\
-		MOV(	eax, ah, 0)	/* 0 */\
-		XOR(	eax, bl, 1)	/* 5 */\
-		MOV(	ebx, bh, 0)	/* 4 */\
-		XOR(	eax, ch, 2)	/* 10 */\
-		XOR(	ebx, cl, 3)	/* 3 */\
+	MXOR(	0, al, 1)	/* 1 */\
+	MOV(	eax, ah, 0)	/* 0 */\
+	XOR(	eax, bl, 1)	/* 5 */\
+	MOV(	ebx, bh, 0)	/* 4 */\
+	XOR(	eax, ch, 2)	/* 10 */\
+	XOR(	ebx, cl, 3)	/* 3 */\
 	AS2(	shr ecx, 16)	/* 8,9 */\
-		XOR(	eax, dl, 3)	/* 15 */\
-		XOR(	ebx, dh, 2)	/* 14 */\
+	XOR(	eax, dl, 3)	/* 15 */\
+	XOR(	ebx, dh, 2)	/* 14 */\
 	AS2(	shr edx, 16)	/* 12,13 */\
-		XOR(	edi, ch, 0)	/* 8 */\
-		XOR(	ebx, cl, 1)	/* 9 */\
-		XOR(	edi, dl, 1)	/* 13 */\
-		MXOR(	0, dh, 0)	/* 12 */\
+	XOR(	edi, ch, 0)	/* 8 */\
+	XOR(	ebx, cl, 1)	/* 9 */\
+	XOR(	edi, dl, 1)	/* 13 */\
+	MXOR(	0, dh, 0)	/* 12 */\
 
 	ASL(2)	// 2-round loop
 	AS2(	MOVD	MM(0), [L_SUBKEYS-4*16+3*4])
