@@ -81,14 +81,11 @@ __m128i _mm_clmulepi64_si128(const __m128i &a, const __m128i &b, int i)
 #if CRYPTOPP_BOOL_SSE2_AVAILABLE
 inline static void SSE2_Xor16(byte *a, const byte *b, const byte *c)
 {
-#if CRYPTOPP_BOOL_SSE2_AVAILABLE
 	assert(IsAlignedOn(a,GetAlignmentOf<__m128i>()));
 	assert(IsAlignedOn(b,GetAlignmentOf<__m128i>()));
 	assert(IsAlignedOn(c,GetAlignmentOf<__m128i>()));
-	*(__m128i *)(void *)a = _mm_xor_si128(*(__m128i *)(void *)b, *(__m128i *)(void *)c);
-#else
+
 	asm ("movdqa %1, %%xmm0; pxor %2, %%xmm0; movdqa %%xmm0, %0;" : "=m" (a[0]) : "m"(b[0]), "m"(c[0]));
-#endif
 }
 #endif
 
@@ -364,7 +361,7 @@ unsigned int GCM_Base::OptimalDataAlignment() const
 # pragma warning(disable: 4731)	// frame pointer register 'ebp' modified by inline assembly code
 #endif
 
-#endif	// #ifndef CRYPTOPP_GENERATE_X64_MASM
+#endif	// CRYPTOPP_GENERATE_X64_MASM
 
 #ifdef CRYPTOPP_X64_MASM_AVAILABLE
 extern "C" {
@@ -584,7 +581,7 @@ size_t GCM_Base::AuthenticateBlocks(const byte *data, size_t len)
 		hashBuffer[0] = x0; hashBuffer[1] = x1;
 		return len;
 		}
-#endif	// #ifndef CRYPTOPP_GENERATE_X64_MASM
+#endif	// CRYPTOPP_GENERATE_X64_MASM
 
 #ifdef CRYPTOPP_X64_MASM_AVAILABLE
 	case 1:		// SSE2 and 2K tables
@@ -885,5 +882,5 @@ void GCM_Base::AuthenticateLastFooterBlock(byte *mac, size_t macSize)
 
 NAMESPACE_END
 
-#endif	// #ifndef CRYPTOPP_GENERATE_X64_MASM
+#endif	// CRYPTOPP_GENERATE_X64_MASM
 #endif
