@@ -78,7 +78,7 @@ being unloaded from L1 cache, until that round is finished.
 NAMESPACE_BEGIN(CryptoPP)
 
 // Hack for http://github.com/weidai11/cryptopp/issues/42 and http://github.com/weidai11/cryptopp/issues/132
-#if ((defined(__GNUC__) && defined(CRYPTOPP_BOOL_SSE2_AVAILABLE)) || defined(CRYPTOPP_X64_MASM_AVAILABLE)) && !defined(CRYPTOPP_ALLOW_UNALIGNED_DATA_ACCESS)
+#if (defined(CRYPTOPP_BOOL_SSE2_AVAILABLE) || defined(CRYPTOPP_X64_MASM_AVAILABLE)) && !defined(CRYPTOPP_ALLOW_UNALIGNED_DATA_ACCESS)
 # define CRYPTOPP_ALLOW_RIJNDAEL_UNALIGNED_DATA_ACCESS 1
 #endif
 
@@ -90,7 +90,7 @@ NAMESPACE_BEGIN(CryptoPP)
 #endif
 
 #if defined(CRYPTOPP_ALLOW_UNALIGNED_DATA_ACCESS) || defined(CRYPTOPP_ALLOW_RIJNDAEL_UNALIGNED_DATA_ACCESS)
-# if ((defined(__GNUC__) && defined(CRYPTOPP_BOOL_SSE2_AVAILABLE)) || defined(CRYPTOPP_X64_MASM_AVAILABLE)) && !defined(CRYPTOPP_DISABLE_RIJNDAEL_ASM)
+# if (defined(CRYPTOPP_BOOL_SSE2_AVAILABLE) || defined(CRYPTOPP_X64_MASM_AVAILABLE)) && !defined(CRYPTOPP_DISABLE_RIJNDAEL_ASM)
 namespace rdtable {CRYPTOPP_ALIGN_DATA(16) word64 Te[256+2];}
 using namespace rdtable;
 # else
@@ -189,7 +189,7 @@ void Rijndael::Base::FillEncTable()
 		}
 #endif
 	}
-#if ((defined(__GNUC__) && defined(CRYPTOPP_BOOL_SSE2_AVAILABLE)) || defined(CRYPTOPP_X64_MASM_AVAILABLE)) && !defined(CRYPTOPP_DISABLE_RIJNDAEL_ASM)
+#if (defined(CRYPTOPP_BOOL_SSE2_AVAILABLE) || defined(CRYPTOPP_X64_MASM_AVAILABLE)) && !defined(CRYPTOPP_DISABLE_RIJNDAEL_ASM)
 	Te[256] = Te[257] = 0;
 #endif
 	s_TeFilled = true;
@@ -373,15 +373,9 @@ void Rijndael::Base::UncheckedSetKey(const byte *userKey, unsigned int keylen, c
 
 void Rijndael::Enc::ProcessAndXorBlock(const byte *inBlock, const byte *xorBlock, byte *outBlock) const
 {
-#if (defined(__GNUC__) && defined(CRYPTOPP_BOOL_SSE2_AVAILABLE)) || defined(CRYPTOPP_X64_MASM_AVAILABLE) || CRYPTOPP_BOOL_AESNI_AVAILABLE
-#if ((defined(__GNUC__) && defined(CRYPTOPP_BOOL_SSE2_AVAILABLE)) || defined(CRYPTOPP_X64_MASM_AVAILABLE)) && !defined(CRYPTOPP_DISABLE_RIJNDAEL_ASM)
-	if (HasSSE2())
-#else
+#if (defined(CRYPTOPP_X64_MASM_AVAILABLE) || CRYPTOPP_BOOL_AESNI_AVAILABLE) && !defined(CRYPTOPP_DISABLE_RIJNDAEL_ASM)
 	if (HasAESNI())
-#endif
-	{
 		return (void)Rijndael::Enc::AdvancedProcessBlocks(inBlock, xorBlock, outBlock, 16, 0);
-	}
 #endif
 
 	typedef BlockGetAndPut<word32, NativeByteOrder> Block;
@@ -456,10 +450,7 @@ void Rijndael::Dec::ProcessAndXorBlock(const byte *inBlock, const byte *xorBlock
 {
 #if CRYPTOPP_BOOL_AESNI_AVAILABLE
 	if (HasAESNI())
-	{
-		Rijndael::Dec::AdvancedProcessBlocks(inBlock, xorBlock, outBlock, 16, 0);
-		return;
-	}
+		return (void)Rijndael::Dec::AdvancedProcessBlocks(inBlock, xorBlock, outBlock, 16, 0);
 #endif
 
 	typedef BlockGetAndPut<word32, NativeByteOrder> Block;
@@ -549,7 +540,7 @@ void Rijndael::Dec::ProcessAndXorBlock(const byte *inBlock, const byte *xorBlock
 
 #endif // #ifndef CRYPTOPP_GENERATE_X64_MASM
 
-#if (defined(__GNUC__) && defined(CRYPTOPP_BOOL_SSE2_AVAILABLE)) && !defined(CRYPTOPP_DISABLE_RIJNDAEL_ASM)
+#if defined(CRYPTOPP_BOOL_SSE2_AVAILABLE) && !defined(CRYPTOPP_DISABLE_RIJNDAEL_ASM)
 
 CRYPTOPP_NAKED void CRYPTOPP_FASTCALL Rijndael_Enc_AdvancedProcessBlocks(void *locals, const word32 *k)
 {
@@ -1225,8 +1216,9 @@ inline size_t AESNI_AdvancedProcessBlocks(F1 func1, F4 func4, MAYBE_CONST __m128
 
 	return length;
 }
-#endif
+#endif  // CRYPTOPP_BOOL_AESNI_AVAILABLE
 
+#if CRYPTOPP_BOOL_X64 || CRYPTOPP_BOOL_X32 || CRYPTOPP_BOOL_X86
 size_t Rijndael::Enc::AdvancedProcessBlocks(const byte *inBlocks, const byte *xorBlocks, byte *outBlocks, size_t length, word32 flags) const
 {
 #if CRYPTOPP_BOOL_AESNI_AVAILABLE
@@ -1234,7 +1226,7 @@ size_t Rijndael::Enc::AdvancedProcessBlocks(const byte *inBlocks, const byte *xo
 		return AESNI_AdvancedProcessBlocks(AESNI_Enc_Block, AESNI_Enc_4_Blocks, (MAYBE_CONST __m128i *)(const void *)m_key.begin(), m_rounds, inBlocks, xorBlocks, outBlocks, length, flags);
 #endif
 
-#if ((defined(__GNUC__) && defined(CRYPTOPP_BOOL_SSE2_AVAILABLE)) || defined(CRYPTOPP_X64_MASM_AVAILABLE)) && !defined(CRYPTOPP_DISABLE_RIJNDAEL_ASM)
+#if (defined(CRYPTOPP_BOOL_SSE2_AVAILABLE) || defined(CRYPTOPP_X64_MASM_AVAILABLE)) && !defined(CRYPTOPP_DISABLE_RIJNDAEL_ASM)
 	if (HasSSE2())
 	{
 		if (length < BLOCKSIZE)
@@ -1298,15 +1290,14 @@ size_t Rijndael::Enc::AdvancedProcessBlocks(const byte *inBlocks, const byte *xo
 
 		return length % BLOCKSIZE;
 	}
-#endif
+#endif  // CRYPTOPP_BOOL_SSE2_AVAILABLE || CRYPTOPP_X64_MASM_AVAILABLE
 
 	return BlockTransformation::AdvancedProcessBlocks(inBlocks, xorBlocks, outBlocks, length, flags);
 }
-
+#endif  // CRYPTOPP_BOOL_X64 || CRYPTOPP_BOOL_X32 || CRYPTOPP_BOOL_X86
 #endif
 
 #if CRYPTOPP_BOOL_AESNI_AVAILABLE
-
 size_t Rijndael::Dec::AdvancedProcessBlocks(const byte *inBlocks, const byte *xorBlocks, byte *outBlocks, size_t length, word32 flags) const
 {
 	if (HasAESNI())
@@ -1314,7 +1305,6 @@ size_t Rijndael::Dec::AdvancedProcessBlocks(const byte *inBlocks, const byte *xo
 
 	return BlockTransformation::AdvancedProcessBlocks(inBlocks, xorBlocks, outBlocks, length, flags);
 }
-
 #endif	// CRYPTOPP_BOOL_AESNI_AVAILABLE
 
 NAMESPACE_END
