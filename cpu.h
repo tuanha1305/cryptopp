@@ -41,21 +41,21 @@
 
 // X86/X32/X64 includes
 #if (CRYPTOPP_BOOL_X86 || CRYPTOPP_BOOL_X32 || CRYPTOPP_BOOL_X64)
-#  if defined(CRYPTOPP_UNIX_AVAILABLE) && defined(__GNUC__)
+#  if defined(__GNUC__)
 #    include <x86intrin.h>
 #  endif
-#  if defined(CRYPTOPP_UNIX_AVAILABLE) && CRYPTOPP_BOOL_SSE2_AVAILABLE
+#  if CRYPTOPP_BOOL_SSE2_AVAILABLE
 #    include <emmintrin.h>
 #  endif
-#  if defined(CRYPTOPP_UNIX_AVAILABLE) && CRYPTOPP_BOOL_SSE3_AVAILABLE
+#  if CRYPTOPP_BOOL_SSE3_AVAILABLE
 #    include <emmintrin.h>
 #    include <tmmintrin.h>
 #  endif
-#  if defined(CRYPTOPP_UNIX_AVAILABLE) && CRYPTOPP_BOOL_AESNI_AVAILABLE
+#  if CRYPTOPP_BOOL_AESNI_AVAILABLE
 #    include <emmintrin.h>
 #    include <wmmintrin.h>
 #  endif
-#  if defined(CRYPTOPP_UNIX_AVAILABLE) && CRYPTOPP_BOOL_SSE4_AVAILABLE
+#  if CRYPTOPP_BOOL_SSE4_AVAILABLE
 #    include <emmintrin.h>    // _mm_set_epi64x
 #    include <smmintrin.h>    // _mm_blend_epi16
 #    include <tmmintrin.h>    // _mm_shuffle_epi16
