@@ -2,29 +2,68 @@
 
 //! \file cpu.h
 //! \brief Functions for CPU features and intrinsics
-//! \details The functions are used in X86/X32/X64 and NEON code paths
+//! \details The functions are used in X86/X32/X64 and NEON code paths.
+
+//! \details Commit e8d34649d8f71e99e7ff97d9 made a tradeoff and removed library provided intrinsics
+//!   using builtin functions.  With library intrinsics, Debian Jessie GCC 4.8 and 4.9 experienced
+//!   compile failures in Debug builds, and builds with -std=c++11 and -std=c++14. Without them,
+//!   downlevel GCCs, like 4.3 and 4.4, will likely experience issues or less-efficient code.
+//! The library provided intrinsics were _mm_shuffle_epi8, _mm_extract_epi32, _mm_insert_epi32,
+//!   _mm_clmulepi64_si128, _mm_aeskeygenassist_si128, _mm_aesimc_si128, _mm_aesenc_si128,
+//!   _mm_aesenclast_si128, _mm_aesdeclast_si128.
 
 #ifndef CRYPTOPP_CPU_H
 #define CRYPTOPP_CPU_H
 
 #include "config.h"
 
-#if (CRYPTOPP_BOOL_ARM32 || CRYPTOPP_BOOL_ARM64)
-# if defined(_MSC_VER) || defined(__BORLANDC__)
+#ifndef CRYPTOPP_DISABLE_ASM
+
+// Both ARM32/ARM64 and X86/X32/X64
+#if defined(_MSC_VER) || defined(__BORLANDC__)
 #  define CRYPTOPP_MS_STYLE_INLINE_ASSEMBLY
-# else
+#else
 #  define CRYPTOPP_GNU_STYLE_INLINE_ASSEMBLY
-# endif
-# if CRYPTOPP_BOOL_NEON_INTRINSICS_AVAILABLE
-#  include <arm_neon.h>
-# endif
-# if (CRYPTOPP_BOOL_ARM_CRYPTO_INTRINSICS_AVAILABLE || CRYPTOPP_BOOL_ARM_CRC32_INTRINSICS_AVAILABLE)
-#  include <stdint.h>
-#  if (defined(__ARM_ACLE) || defined(__GNUC__)) && !defined(__APPLE__)
-#   include <arm_acle.h>
+#endif
+
+// ARM32/ARM64 includes
+#if (CRYPTOPP_BOOL_ARM32 || CRYPTOPP_BOOL_ARM64)
+#  if CRYPTOPP_BOOL_NEON_INTRINSICS_AVAILABLE
+#    include <arm_neon.h>
 #  endif
-# endif
-#endif  // ARM-32 or ARM-64
+#  if (CRYPTOPP_BOOL_ARM_CRYPTO_INTRINSICS_AVAILABLE || CRYPTOPP_BOOL_ARM_CRC32_INTRINSICS_AVAILABLE)
+#    include <stdint.h>
+#    if (defined(__ARM_ACLE) || defined(__GNUC__)) && !defined(__APPLE__)
+#      include <arm_acle.h>
+#    endif
+#  endif
+#endif  // ARM32 or ARM64
+
+// X86/X32/X64 includes
+#if (CRYPTOPP_BOOL_X86 || CRYPTOPP_BOOL_X32 || CRYPTOPP_BOOL_X64)
+#  if defined(CRYPTOPP_UNIX_AVAILABLE) && defined(__GNUC__)
+#    include <x86intrin.h>
+#  endif
+#  if defined(CRYPTOPP_UNIX_AVAILABLE) && CRYPTOPP_BOOL_SSE2_INTRINSICS_AVAILABLE
+#    include <emmintrin.h>
+#  endif
+#  if defined(CRYPTOPP_UNIX_AVAILABLE) && CRYPTOPP_BOOL_SSE3_INTRINSICS_AVAILABLE
+#    include <emmintrin.h>
+#    include <tmmintrin.h>
+#  endif
+#  if defined(CRYPTOPP_UNIX_AVAILABLE) && CRYPTOPP_BOOL_AESNI_INTRINSICS_AVAILABLE
+#    include <emmintrin.h>
+#    include <wmmintrin.h>
+#  endif
+#  if defined(CRYPTOPP_UNIX_AVAILABLE) && CRYPTOPP_BOOL_SSE4_INTRINSICS_AVAILABLE
+#    include <emmintrin.h>    // _mm_set_epi64x
+#    include <smmintrin.h>    // _mm_blend_epi16
+#    include <tmmintrin.h>    // _mm_shuffle_epi16
+#    include <nmmintrin.h>    // _mm_crc32_u{8|16|32}
+#  endif
+#endif // X86, X32 and X64
+
+#endif // CRYPTOPP_DISABLE_ASM
 
 #ifdef CRYPTOPP_GENERATE_X64_MASM
 
@@ -34,33 +73,6 @@
 #define NAMESPACE_END
 
 #else
-
-// Removed library definitions for _mm_shuffle_epi8, _mm_extract_epi32, _mm_insert_epi32, _mm_clmulepi64_si128,
-// _mm_aeskeygenassist_si128, _mm_aesimc_si128, _mm_aesenc_si128, _mm_aesenclast_si128, _mm_aesdeclast_si128.
-// Its a tradeoff. With library definitions, GCC 4.8 and 4.9 experienced compile failures in Debug builds, and
-// builds with  -std=c++11 and -std=c++14. GCC 4.8 and 4.9 are the compilers for Debian Jessie/Debian 8. Without
-// them, downlevel GCCs, like 4.3 and 4.4, will likely experience issues (or at least less-efficient code).
-
-# if defined(CRYPTOPP_UNIX_AVAILABLE) && defined(__GNUC__)
-#  include <x86intrin.h>
-# endif
-# if defined(CRYPTOPP_UNIX_AVAILABLE) && CRYPTOPP_BOOL_SSE2_INTRINSICS_AVAILABLE
-#  include <emmintrin.h>
-# endif
-# if defined(CRYPTOPP_UNIX_AVAILABLE) && CRYPTOPP_BOOL_SSE3_INTRINSICS_AVAILABLE
-#  include <emmintrin.h> 
-#  include <tmmintrin.h>
-# endif
-# if defined(CRYPTOPP_UNIX_AVAILABLE) && CRYPTOPP_BOOL_AESNI_INTRINSICS_AVAILABLE
-#  include <emmintrin.h> 
-#  include <wmmintrin.h>
-# endif
-# if defined(CRYPTOPP_UNIX_AVAILABLE) && CRYPTOPP_BOOL_SSE4_INTRINSICS_AVAILABLE
-#  include <emmintrin.h>    // _mm_set_epi64x
-#  include <smmintrin.h>    // _mm_blend_epi16
-#  include <tmmintrin.h>    // _mm_shuffle_epi16
-#  include <nmmintrin.h>    // _mm_crc32_u{8|16|32}
-# endif
 
 NAMESPACE_BEGIN(CryptoPP)
 
