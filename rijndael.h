@@ -11,8 +11,8 @@
 #include "seckey.h"
 #include "secblock.h"
 
-// Clang 3.3 integrated assembler crash on Linux
-#if CRYPTOPP_BOOL_X32 || (defined(CRYPTOPP_LLVM_CLANG_VERSION) && (CRYPTOPP_LLVM_CLANG_VERSION < 30400))
+// Clang 3.3 integrated assembler crash on Linux. SunCC compile error
+#if CRYPTOPP_BOOL_X32 || defined(CRYPTOPP_DISABLE_INTEL_ASM)
 # define CRYPTOPP_DISABLE_RIJNDAEL_ASM
 #endif
 

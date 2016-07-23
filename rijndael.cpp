@@ -1006,9 +1006,10 @@ CRYPTOPP_NAKED void CRYPTOPP_FASTCALL Rijndael_Enc_AdvancedProcessBlocks(void *l
 	ATT_PREFIX
 	:
 	: "c" (locals), "d" (k), "S" (Te), "D" (g_cacheLineSize)
+	#if CRYPTOPP_BOOL_X86 || CRYPTOPP_BOOL_X32
 	: "memory", "cc", "%eax"
-	#if CRYPTOPP_BOOL_X64
-		, "%rbx", "%r8", "%r9", "%r10", "%r11", "%r12"
+	#else
+	: "memory", "cc", "%rax", "%rbx", "%r8", "%r9", "%r10", "%r11", "%r12"
 	#endif
 	);
 #endif
