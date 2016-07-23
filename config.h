@@ -460,26 +460,26 @@ NAMESPACE_END
 	#define CRYPTOPP_X64_ASM_AVAILABLE
 #endif
 
-#if !defined(CRYPTOPP_DISABLE_SSE2) && (defined(CRYPTOPP_MSVC6PP_OR_LATER) || defined(__SSE2__)) && !defined(_M_ARM)
+#if !defined(CRYPTOPP_DISABLE_SSE2) && ((defined(CRYPTOPP_MSVC6PP_OR_LATER) && (defined(_M_IX86) || defined(_M_X64))) || defined(__SSE2__))
 	#define CRYPTOPP_BOOL_SSE2_INTRINSICS_AVAILABLE 1
 #else
 	#define CRYPTOPP_BOOL_SSE2_INTRINSICS_AVAILABLE 0
+#endif
+
+#if !defined(CRYPTOPP_DISABLE_SSSE3) && !defined(CRYPTOPP_DISABLE_AESNI) && CRYPTOPP_BOOL_SSE2_INTRINSICS_AVAILABLE && defined(__AES__) && (CRYPTOPP_GCC_VERSION >= 40400 || _MSC_FULL_VER >= 150030729 || __INTEL_COMPILER >= 1110)
+	#define CRYPTOPP_BOOL_AESNI_INTRINSICS_AVAILABLE 1
+#else
+	#define CRYPTOPP_BOOL_AESNI_INTRINSICS_AVAILABLE 0
 #endif
 
 // Intrinsics availible in GCC 4.3 (http://gcc.gnu.org/gcc-4.3/changes.html) and
 //   MSVC 2008 (http://msdn.microsoft.com/en-us/library/bb892950%28v=vs.90%29.aspx)
 //   SunCC could generate SSE4 at 12.1, but the intrinsics are missing until 12.4. However, we don't know
 //     when to activate the code paths because SunCC does not indicate it in the preprocessor with macros.
-#if !defined(CRYPTOPP_DISABLE_SSE2) && !defined(CRYPTOPP_DISABLE_SSE4) && (((_MSC_VER >= 1500) && !defined(_M_ARM)) || (defined(__SSE4_1__) && defined(__SSE4_2__)))
+#if !defined(CRYPTOPP_DISABLE_SSE2) && !defined(CRYPTOPP_DISABLE_SSE4) && (defined(__SSE4_1__) && defined(__SSE4_2__)) && ((_MSC_VER >= 1500) && defined(_M_IX86) || defined(_M_X64))
 	#define CRYPTOPP_BOOL_SSE4_INTRINSICS_AVAILABLE 1
 #else
 	#define CRYPTOPP_BOOL_SSE4_INTRINSICS_AVAILABLE 0
-#endif
-
-#if !defined(CRYPTOPP_DISABLE_SSSE3) && !defined(CRYPTOPP_DISABLE_AESNI) && CRYPTOPP_BOOL_SSE2_INTRINSICS_AVAILABLE && (CRYPTOPP_GCC_VERSION >= 40400 || _MSC_FULL_VER >= 150030729 || __INTEL_COMPILER >= 1110 || defined(__AES__))
-	#define CRYPTOPP_BOOL_AESNI_INTRINSICS_AVAILABLE 1
-#else
-	#define CRYPTOPP_BOOL_AESNI_INTRINSICS_AVAILABLE 0
 #endif
 
 // Requires ARMv7 and ACLE 1.0. Testing shows ARMv7 is really ARMv7a under most toolchains.
