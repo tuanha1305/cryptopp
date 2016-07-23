@@ -432,10 +432,10 @@ NAMESPACE_END
 	# define __SSE2__
 #endif
 
-#if !defined(CRYPTOPP_DISABLE_ASM) && !defined(CRYPTOPP_DISABLE_SSE2)
-# if (defined(_MSC_VER) && (defined(_M_IX86) || defined(_M_X64))) || (defined(__GNUC__) && (defined(__i386__) || defined(__i686__) || defined(__x86_64__)))
+#if !defined(CRYPTOPP_DISABLE_ASM)
+# if (defined(_MSC_VER) && (defined(_M_IX86) || defined(_M_X64))) || (defined(__GNUC__) && (defined(__i386__) || defined(__i586__) || defined(__i686__) || defined(__x86_64__)))
 
-	#if (defined(_MSC_VER) && defined(_M_IX86))
+	#if (defined(_MSC_VER) && defined(_M_IX86)) || (defined(__i386__) || defined(__i586__) || defined(__i686__))
 		#define CRYPTOPP_X86_AVAILABLE
 	#endif
 
@@ -447,44 +447,42 @@ NAMESPACE_END
 		#define CRYPTOPP_X64_ASM_AVAILABLE
 	#endif
 
-	#if (defined(CRYPTOPP_MSVC6PP_OR_LATER) || CRYPTOPP_GCC_VERSION >= 30300 || defined(__SSE2__))
-		#define CRYPTOPP_BOOL_SSE2_AVAILABLE 1
-	#endif
-
 # endif
 #endif
 
+#if !defined(CRYPTOPP_DISABLE_ASM) && !defined(CRYPTOPP_DISABLE_SSE2)
+# if (defined(CRYPTOPP_MSVC6PP_OR_LATER) || defined(__SSE2__))
+	#define CRYPTOPP_BOOL_SSE2_AVAILABLE 1
+# endif
+#endif
 #if !defined(CRYPTOPP_BOOL_SSE2_AVAILABLE)
 	# define CRYPTOPP_BOOL_SSE2_AVAILABLE 0
 #endif
 
 // SSE3 was actually introduced in GNU as 2.17, which was released 6/23/2006, but we can't tell what version of binutils is installed.
-// GCC 4.1.2 was released on 2/13/2007, so we'll use that as a proxy for the binutils version. Also see the output of
-// `gcc -dM -E -march=native - < /dev/null | grep -i SSE` for preprocessor defines available.
+// GCC 4.1.2 was released on 2/13/2007, so we'll use that as a proxy for the binutils version.
 #if !defined(CRYPTOPP_DISABLE_ASM) && !defined(CRYPTOPP_DISABLE_SSSE3)
-# if (_MSC_VER >= 1400) || defined(__SSSE3__)
+# if (_MSC_VER >= 1400) || (defined(__SSE3__) && defined(__SSSE3__))
 		#define CRYPTOPP_BOOL_SSSE3_AVAILABLE 1
 # endif
 #endif
-
 #if !defined(CRYPTOPP_BOOL_SSSE3_AVAILABLE)
 	# define CRYPTOPP_BOOL_SSSE3_AVAILABLE 0
 #endif
 
+// AES-NI and PCLMUL support availible in GCC 4.4 (http://gcc.gnu.org/gcc-4.4/changes.html) and
+//  MSVC 2008 SP1 (http://msdn.microsoft.com/en-us/library/bb892950%28v=vs.90%29.aspx)
 #if !defined(CRYPTOPP_DISABLE_ASM) && !defined(CRYPTOPP_DISABLE_AESNI)
 # if (_MSC_FULL_VER >= 150030729) || defined(__AES__)
 	#define CRYPTOPP_BOOL_AESNI_AVAILABLE 1
 # endif
 #endif
-
 #if !defined(CRYPTOPP_BOOL_AESNI_AVAILABLE)
 	# define CRYPTOPP_BOOL_AESNI_AVAILABLE 0
 #endif
 
-// Intrinsics availible in GCC 4.3 (http://gcc.gnu.org/gcc-4.3/changes.html) and
-//   MSVC 2008 (http://msdn.microsoft.com/en-us/library/bb892950%28v=vs.90%29.aspx)
-//   SunCC could generate SSE4 at 12.1, but the intrinsics are missing until 12.4. However, we don't know
-//     when to activate the code paths because SunCC does not indicate it in the preprocessor with macros.
+// SSE4.1 and SSE4.2 support availible in GCC 4.3 (http://gcc.gnu.org/gcc-4.3/changes.html) and
+//  MSVC 2008 (http://msdn.microsoft.com/en-us/library/bb892950%28v=vs.90%29.aspx)
 #if !defined(CRYPTOPP_DISABLE_ASM) && !defined(CRYPTOPP_DISABLE_SSE4)
 # if ((_MSC_VER >= 1500) && defined(_M_IX86) || defined(_M_X64)) || (defined(__SSE4_1__) && defined(__SSE4_2__))
 	#define CRYPTOPP_BOOL_SSE4_AVAILABLE 1
