@@ -35,7 +35,12 @@
 
 #else
 
-// typedef's for __m128i, __v2di, __v4si and friends
+// Removed library definitions for _mm_shuffle_epi8, _mm_extract_epi32, _mm_insert_epi32, _mm_clmulepi64_si128,
+// _mm_aeskeygenassist_si128, _mm_aesimc_si128, _mm_aesenc_si128, _mm_aesenclast_si128, _mm_aesdeclast_si128.
+// Its a tradeoff. With library definitions, GCC 4.8 and 4.9 experienced compile failures in Debug builds, and
+// builds with  -std=c++11 and -std=c++14. GCC 4.8 and 4.9 are the compilers for Debian Jessie/Debian 8. Without
+// them, downlevel GCCs, like 4.3 and 4.4, will likely experience issues (or at least less-efficient code).
+
 # if defined(CRYPTOPP_UNIX_AVAILABLE) && defined(__GNUC__)
 #  include <x86intrin.h>
 # endif
