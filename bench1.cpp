@@ -276,7 +276,7 @@ void BenchmarkAll(double t, double hertz)
 	cout << "<THEAD><TR><TH>Algorithm<TH>MiB/Second" << cpb << "<TH>Microseconds to<br>Setup Key and IV" << cpk << endl;
 
 	cout << "\n<TBODY style=\"background: yellow\">";
-#if CRYPTOPP_BOOL_AESNI_INTRINSICS_AVAILABLE
+#if CRYPTOPP_BOOL_AESNI_AVAILABLE
 	if (HasCLMUL())
 		BenchMarkByName2<AuthenticatedSymmetricCipher, AuthenticatedSymmetricCipher>("AES/GCM", 0, "AES/GCM");
 	else
@@ -289,7 +289,7 @@ void BenchmarkAll(double t, double hertz)
 	BenchMarkByName2<AuthenticatedSymmetricCipher, AuthenticatedSymmetricCipher>("AES/EAX");
 
 	cout << "\n<TBODY style=\"background: white\">";
-#if CRYPTOPP_BOOL_AESNI_INTRINSICS_AVAILABLE
+#if CRYPTOPP_BOOL_AESNI_AVAILABLE
 	if (HasCLMUL())
 		BenchMarkByName2<AuthenticatedSymmetricCipher, MessageAuthenticationCode>("AES/GCM", 0, "GMAC(AES)");
 	else

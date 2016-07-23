@@ -18,7 +18,7 @@
 #include <setjmp.h>
 #endif
 
-#if CRYPTOPP_BOOL_SSE2_INTRINSICS_AVAILABLE
+#if CRYPTOPP_BOOL_SSE2_AVAILABLE
 #include <emmintrin.h>
 #endif
 
@@ -138,9 +138,9 @@ static bool TrySSE2()
 #elif defined(CRYPTOPP_MS_STYLE_INLINE_ASSEMBLY)
     __try
 	{
-#if CRYPTOPP_BOOL_SSE2_ASM_AVAILABLE
+#if CRYPTOPP_BOOL_SSE2_AVAILABLE
 		AS2(por xmm0, xmm0)        // executing SSE2 instruction
-#elif CRYPTOPP_BOOL_SSE2_INTRINSICS_AVAILABLE
+#elif CRYPTOPP_BOOL_SSE2_AVAILABLE
 		__m128i x = _mm_setzero_si128();
 		return _mm_cvtsi128_si32(x) == 0;
 #endif
@@ -168,9 +168,9 @@ static bool TrySSE2()
 		result = false;
 	else
 	{
-#if CRYPTOPP_BOOL_SSE2_ASM_AVAILABLE
+#if CRYPTOPP_BOOL_SSE2_AVAILABLE
 		__asm __volatile ("por %xmm0, %xmm0");
-#elif CRYPTOPP_BOOL_SSE2_INTRINSICS_AVAILABLE
+#elif CRYPTOPP_BOOL_SSE2_AVAILABLE
 		__m128i x = _mm_setzero_si128();
 		result = _mm_cvtsi128_si32(x) == 0;
 #endif
@@ -360,7 +360,7 @@ extern "C"
 
 static bool TryNEON()
 {
-#if (CRYPTOPP_BOOL_NEON_INTRINSICS_AVAILABLE)
+#if (CRYPTOPP_BOOL_NEON_AVAILABLE)
 # if defined(CRYPTOPP_MS_STYLE_INLINE_ASSEMBLY)
 	volatile bool result = true;
 	__try
@@ -423,12 +423,12 @@ static bool TryNEON()
 # endif
 #else
 	return false;
-#endif  // CRYPTOPP_BOOL_NEON_INTRINSICS_AVAILABLE
+#endif  // CRYPTOPP_BOOL_NEON_AVAILABLE
 }
 
 static bool TryCRC32()
 {
-#if (CRYPTOPP_BOOL_ARM_CRC32_INTRINSICS_AVAILABLE)
+#if (CRYPTOPP_BOOL_ARM_CRC32_AVAILABLE)
 # if defined(CRYPTOPP_MS_STYLE_INLINE_ASSEMBLY)
 	volatile bool result = true;
 	__try
@@ -477,12 +477,12 @@ static bool TryCRC32()
 # endif
 #else
 	return false;
-#endif  // CRYPTOPP_BOOL_ARM_CRC32_INTRINSICS_AVAILABLE
+#endif  // CRYPTOPP_BOOL_ARM_CRC32_AVAILABLE
 }
 
 static bool TryAES()
 {
-#if (CRYPTOPP_BOOL_ARM_CRYPTO_INTRINSICS_AVAILABLE)
+#if (CRYPTOPP_BOOL_ARM_CRYPTO_AVAILABLE)
 # if defined(CRYPTOPP_MS_STYLE_INLINE_ASSEMBLY)
 	volatile bool result = true;
 	__try
@@ -530,12 +530,12 @@ static bool TryAES()
 # endif
 #else
 	return false;
-#endif  // CRYPTOPP_BOOL_ARM_CRYPTO_INTRINSICS_AVAILABLE
+#endif  // CRYPTOPP_BOOL_ARM_CRYPTO_AVAILABLE
 }
 
 static bool TrySHA1()
 {
-#if (CRYPTOPP_BOOL_ARM_CRYPTO_INTRINSICS_AVAILABLE)
+#if (CRYPTOPP_BOOL_ARM_CRYPTO_AVAILABLE)
 # if defined(CRYPTOPP_MS_STYLE_INLINE_ASSEMBLY)
 	volatile bool result = true;
 	__try
@@ -590,12 +590,12 @@ static bool TrySHA1()
 # endif
 #else
 	return false;
-#endif  // CRYPTOPP_BOOL_ARM_CRYPTO_INTRINSICS_AVAILABLE
+#endif  // CRYPTOPP_BOOL_ARM_CRYPTO_AVAILABLE
 }
 
 static bool TrySHA2()
 {
-#if (CRYPTOPP_BOOL_ARM_CRYPTO_INTRINSICS_AVAILABLE)
+#if (CRYPTOPP_BOOL_ARM_CRYPTO_AVAILABLE)
 # if defined(CRYPTOPP_MS_STYLE_INLINE_ASSEMBLY)
 	volatile bool result = true;
 	__try
@@ -648,7 +648,7 @@ static bool TrySHA2()
 # endif
 #else
 	return false;
-#endif  // CRYPTOPP_BOOL_ARM_CRYPTO_INTRINSICS_AVAILABLE
+#endif  // CRYPTOPP_BOOL_ARM_CRYPTO_AVAILABLE
 }
 
 #if HAVE_GCC_CONSTRUCTOR1

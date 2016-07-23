@@ -14,17 +14,15 @@
 
 // Clang 3.3 integrated assembler crash on Linux. MacPorts GCC compile error. SunCC crash under Sun Studio 12.5 and below.
 #if (defined(CRYPTOPP_LLVM_CLANG_VERSION) && (CRYPTOPP_LLVM_CLANG_VERSION < 30400)) || defined(CRYPTOPP_CLANG_INTEGRATED_ASSEMBLER) || (__SUNPRO_CC <= 0x5140)
-# undef CRYPTOPP_X86_ASM_AVAILABLE
-# undef CRYPTOPP_X32_ASM_AVAILABLE
-# undef CRYPTOPP_X64_ASM_AVAILABLE
-# undef CRYPTOPP_BOOL_SSE2_ASM_AVAILABLE
-# undef CRYPTOPP_BOOL_SSSE3_ASM_AVAILABLE
-# undef CRYPTOPP_BOOL_SSE2_INTRINSICS_AVAILABLE
-# undef CRYPTOPP_BOOL_AESNI_INTRINSICS_AVAILABLE
-# define CRYPTOPP_BOOL_SSE2_ASM_AVAILABLE 0
-# define CRYPTOPP_BOOL_SSSE3_ASM_AVAILABLE 0
-# define CRYPTOPP_BOOL_SSE2_INTRINSICS_AVAILABLE 0
-# define CRYPTOPP_BOOL_AESNI_INTRINSICS_AVAILABLE 0
+# undef CRYPTOPP_X86_AVAILABLE
+# undef CRYPTOPP_X32_AVAILABLE
+# undef CRYPTOPP_X64_AVAILABLE
+# undef CRYPTOPP_BOOL_SSE2_AVAILABLE
+# undef CRYPTOPP_BOOL_SSSE3_AVAILABLE
+# undef CRYPTOPP_BOOL_AESNI_AVAILABLE
+# define CRYPTOPP_BOOL_SSE2_AVAILABLE 0
+# define CRYPTOPP_BOOL_SSSE3_AVAILABLE 0
+# define CRYPTOPP_BOOL_AESNI_AVAILABLE 0
 #endif
 
 #include "gcm.h"
@@ -80,10 +78,10 @@ __m128i _mm_clmulepi64_si128(const __m128i &a, const __m128i &b, int i)
 }
 #endif
 
-#if CRYPTOPP_BOOL_SSE2_INTRINSICS_AVAILABLE || CRYPTOPP_BOOL_SSE2_ASM_AVAILABLE
+#if CRYPTOPP_BOOL_SSE2_AVAILABLE
 inline static void SSE2_Xor16(byte *a, const byte *b, const byte *c)
 {
-#if CRYPTOPP_BOOL_SSE2_INTRINSICS_AVAILABLE
+#if CRYPTOPP_BOOL_SSE2_AVAILABLE
 	assert(IsAlignedOn(a,GetAlignmentOf<__m128i>()));
 	assert(IsAlignedOn(b,GetAlignmentOf<__m128i>()));
 	assert(IsAlignedOn(c,GetAlignmentOf<__m128i>()));
@@ -103,7 +101,7 @@ inline static void Xor16(byte *a, const byte *b, const byte *c)
 	((word64 *)(void *)a)[1] = ((word64 *)(void *)b)[1] ^ ((word64 *)(void *)c)[1];
 }
 
-#if CRYPTOPP_BOOL_AESNI_INTRINSICS_AVAILABLE
+#if CRYPTOPP_BOOL_AESNI_AVAILABLE
 CRYPTOPP_ALIGN_DATA(16)
 static const word64 s_clmulConstants64[] = {
 	W64LIT(0xe100000000000000), W64LIT(0xc200000000000000),
@@ -164,7 +162,7 @@ void GCM_Base::SetKeyWithoutResync(const byte *userKey, size_t keylength, const 
 
 	int tableSize, i, j, k;
 
-#if CRYPTOPP_BOOL_AESNI_INTRINSICS_AVAILABLE
+#if CRYPTOPP_BOOL_AESNI_AVAILABLE
 	if (HasCLMUL())
 	{
 		// Avoid "parameter not used" error and suppress Coverity finding
@@ -191,7 +189,7 @@ void GCM_Base::SetKeyWithoutResync(const byte *userKey, size_t keylength, const 
 	memset(hashKey, 0, REQUIRED_BLOCKSIZE);
 	blockCipher.ProcessBlock(hashKey);
 
-#if CRYPTOPP_BOOL_AESNI_INTRINSICS_AVAILABLE
+#if CRYPTOPP_BOOL_AESNI_AVAILABLE
 	if (HasCLMUL())
 	{
 		const __m128i r = s_clmulConstants[0];
@@ -231,7 +229,7 @@ void GCM_Base::SetKeyWithoutResync(const byte *userKey, size_t keylength, const 
 		for (i=0; i<16; i++)
 		{
 			memset(table+i*256*16, 0, 16);
-#if CRYPTOPP_BOOL_SSE2_INTRINSICS_AVAILABLE || CRYPTOPP_BOOL_SSE2_ASM_AVAILABLE
+#if CRYPTOPP_BOOL_SSE2_AVAILABLE
 			if (HasSSE2())
 				for (j=2; j<=0x80; j*=2)
 					for (k=1; k<j; k++)
@@ -277,7 +275,7 @@ void GCM_Base::SetKeyWithoutResync(const byte *userKey, size_t keylength, const 
 		{
 			memset(table+i*256, 0, 16);
 			memset(table+1024+i*256, 0, 16);
-#if CRYPTOPP_BOOL_SSE2_INTRINSICS_AVAILABLE || CRYPTOPP_BOOL_SSE2_ASM_AVAILABLE
+#if CRYPTOPP_BOOL_SSE2_AVAILABLE
 			if (HasSSE2())
 				for (j=2; j<=8; j*=2)
 					for (k=1; k<j; k++)
@@ -299,7 +297,7 @@ void GCM_Base::SetKeyWithoutResync(const byte *userKey, size_t keylength, const 
 
 inline void GCM_Base::ReverseHashBufferIfNeeded()
 {
-#if CRYPTOPP_BOOL_AESNI_INTRINSICS_AVAILABLE
+#if CRYPTOPP_BOOL_AESNI_AVAILABLE
 	if (HasCLMUL())
 	{
 		__m128i &x = *(__m128i *)(void *)HashBuffer();
@@ -356,7 +354,7 @@ void GCM_Base::Resync(const byte *iv, size_t len)
 unsigned int GCM_Base::OptimalDataAlignment() const
 {
 	return
-#if CRYPTOPP_BOOL_SSE2_ASM_AVAILABLE || defined(CRYPTOPP_X64_MASM_AVAILABLE)
+#if CRYPTOPP_BOOL_SSE2_AVAILABLE || defined(CRYPTOPP_X64_MASM_AVAILABLE)
 		HasSSE2() ? 16 :
 #endif
 		GetBlockCipher().OptimalDataAlignment();
@@ -379,7 +377,7 @@ void GCM_AuthenticateBlocks_64K(const byte *data, size_t blocks, word64 *hashBuf
 
 size_t GCM_Base::AuthenticateBlocks(const byte *data, size_t len)
 {
-#if CRYPTOPP_BOOL_AESNI_INTRINSICS_AVAILABLE
+#if CRYPTOPP_BOOL_AESNI_AVAILABLE
 	if (HasCLMUL())
 	{
 		const __m128i *table = (const __m128i *)(const void *)MulTable();
@@ -451,7 +449,7 @@ size_t GCM_Base::AuthenticateBlocks(const byte *data, size_t len)
 	assert(IsAlignedOn(hashBuffer,GetAlignmentOf<word64>()));
 
 	switch (2*(m_buffer.size()>=64*1024)
-#if CRYPTOPP_BOOL_SSE2_ASM_AVAILABLE || defined(CRYPTOPP_X64_MASM_AVAILABLE)
+#if CRYPTOPP_BOOL_SSE2_AVAILABLE || defined(CRYPTOPP_X64_MASM_AVAILABLE)
 		+ HasSSE2()
 #endif
 		)
@@ -597,7 +595,7 @@ size_t GCM_Base::AuthenticateBlocks(const byte *data, size_t len)
 		return len % 16;
 #endif
 
-#if CRYPTOPP_BOOL_SSE2_ASM_AVAILABLE
+#if CRYPTOPP_BOOL_SSE2_AVAILABLE
 	case 1:		// SSE2 and 2K tables
 		{
 		#ifdef __GNUC__
@@ -709,7 +707,7 @@ size_t GCM_Base::AuthenticateBlocks(const byte *data, size_t len)
 		AS2(	psrldq	xmm0, 15						)
 #if (CRYPTOPP_LLVM_CLANG_VERSION >= 30600) || (CRYPTOPP_APPLE_CLANG_VERSION >= 70000)
 		AS2(	movd	edi, xmm0						)
-#elif (defined(CRYPTOPP_LLVM_CLANG_VERSION) || defined(CRYPTOPP_APPLE_CLANG_VERSION)) && defined(CRYPTOPP_X64_ASM_AVAILABLE)
+#elif (defined(CRYPTOPP_LLVM_CLANG_VERSION) || defined(CRYPTOPP_APPLE_CLANG_VERSION)) && defined(CRYPTOPP_X64_AVAILABLE)
 		AS2(	mov		WORD_REG(di), xmm0				)
 #else	// GNU Assembler
 		AS2(	movd	WORD_REG(di), xmm0				)
@@ -724,7 +722,7 @@ size_t GCM_Base::AuthenticateBlocks(const byte *data, size_t len)
 		AS2(	psrldq	xmm1, 15						)
 #if (CRYPTOPP_LLVM_CLANG_VERSION >= 30600) || (CRYPTOPP_APPLE_CLANG_VERSION >= 70000)
 		AS2(	movd	edi, xmm1						)
-#elif (defined(CRYPTOPP_LLVM_CLANG_VERSION) || defined(CRYPTOPP_APPLE_CLANG_VERSION)) && defined(CRYPTOPP_X64_ASM_AVAILABLE)
+#elif (defined(CRYPTOPP_LLVM_CLANG_VERSION) || defined(CRYPTOPP_APPLE_CLANG_VERSION)) && defined(CRYPTOPP_X64_AVAILABLE)
 		AS2(	mov		WORD_REG(di), xmm1				)
 #else
 		AS2(	movd	WORD_REG(di), xmm1				)
@@ -735,7 +733,7 @@ size_t GCM_Base::AuthenticateBlocks(const byte *data, size_t len)
 		AS2(	psrldq	xmm0, 15						)
 #if (CRYPTOPP_LLVM_CLANG_VERSION >= 30600) || (CRYPTOPP_APPLE_CLANG_VERSION >= 70000)
 		AS2(	movd	edi, xmm0						)
-#elif (defined(CRYPTOPP_LLVM_CLANG_VERSION) || defined(CRYPTOPP_APPLE_CLANG_VERSION)) && defined(CRYPTOPP_X64_ASM_AVAILABLE)
+#elif (defined(CRYPTOPP_LLVM_CLANG_VERSION) || defined(CRYPTOPP_APPLE_CLANG_VERSION)) && defined(CRYPTOPP_X64_AVAILABLE)
 		AS2(	mov		WORD_REG(di), xmm0				)
 #else
 		AS2(	movd	WORD_REG(di), xmm0				)

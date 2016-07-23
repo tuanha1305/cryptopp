@@ -28,10 +28,10 @@
 
 // ARM32/ARM64 includes
 #if (CRYPTOPP_BOOL_ARM32 || CRYPTOPP_BOOL_ARM64)
-#  if CRYPTOPP_BOOL_NEON_INTRINSICS_AVAILABLE
+#  if CRYPTOPP_BOOL_NEON_AVAILABLE
 #    include <arm_neon.h>
 #  endif
-#  if (CRYPTOPP_BOOL_ARM_CRYPTO_INTRINSICS_AVAILABLE || CRYPTOPP_BOOL_ARM_CRC32_INTRINSICS_AVAILABLE)
+#  if (CRYPTOPP_BOOL_ARM_CRYPTO_AVAILABLE || CRYPTOPP_BOOL_ARM_CRC32_AVAILABLE)
 #    include <stdint.h>
 #    if (defined(__ARM_ACLE) || defined(__GNUC__)) && !defined(__APPLE__)
 #      include <arm_acle.h>
@@ -44,18 +44,18 @@
 #  if defined(CRYPTOPP_UNIX_AVAILABLE) && defined(__GNUC__)
 #    include <x86intrin.h>
 #  endif
-#  if defined(CRYPTOPP_UNIX_AVAILABLE) && CRYPTOPP_BOOL_SSE2_INTRINSICS_AVAILABLE
+#  if defined(CRYPTOPP_UNIX_AVAILABLE) && CRYPTOPP_BOOL_SSE2_AVAILABLE
 #    include <emmintrin.h>
 #  endif
-#  if defined(CRYPTOPP_UNIX_AVAILABLE) && CRYPTOPP_BOOL_SSE3_INTRINSICS_AVAILABLE
+#  if defined(CRYPTOPP_UNIX_AVAILABLE) && CRYPTOPP_BOOL_SSE3_AVAILABLE
 #    include <emmintrin.h>
 #    include <tmmintrin.h>
 #  endif
-#  if defined(CRYPTOPP_UNIX_AVAILABLE) && CRYPTOPP_BOOL_AESNI_INTRINSICS_AVAILABLE
+#  if defined(CRYPTOPP_UNIX_AVAILABLE) && CRYPTOPP_BOOL_AESNI_AVAILABLE
 #    include <emmintrin.h>
 #    include <wmmintrin.h>
 #  endif
-#  if defined(CRYPTOPP_UNIX_AVAILABLE) && CRYPTOPP_BOOL_SSE4_INTRINSICS_AVAILABLE
+#  if defined(CRYPTOPP_UNIX_AVAILABLE) && CRYPTOPP_BOOL_SSE4_AVAILABLE
 #    include <emmintrin.h>    // _mm_set_epi64x
 #    include <smmintrin.h>    // _mm_blend_epi16
 #    include <tmmintrin.h>    // _mm_shuffle_epi16
@@ -67,9 +67,9 @@
 
 #ifdef CRYPTOPP_GENERATE_X64_MASM
 
-#define CRYPTOPP_X86_ASM_AVAILABLE
+#define CRYPTOPP_X86_AVAILABLE
 #define CRYPTOPP_BOOL_X64 1
-#define CRYPTOPP_BOOL_SSE2_ASM_AVAILABLE 1
+#define CRYPTOPP_BOOL_SSE2_AVAILABLE 1
 #define NAMESPACE_END
 
 #else

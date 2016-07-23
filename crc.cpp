@@ -10,7 +10,7 @@ NAMESPACE_BEGIN(CryptoPP)
 // Visual Studio needs VS2008 (1500)
 //  http://msdn.microsoft.com/en-us/library/bb531394%28v=vs.90%29.aspx
 #if defined(_MSC_VER) && (_MSC_VER < 1500)
-# undef CRYPTOPP_BOOL_SSE4_INTRINSICS_AVAILABLE
+# undef CRYPTOPP_BOOL_SSE4_AVAILABLE
 #endif
 
 /* Table of CRC-32's of all single byte values (made by makecrc.c) */
@@ -131,7 +131,7 @@ CRC32::CRC32()
 
 void CRC32::Update(const byte *s, size_t n)
 {
-#if (CRYPTOPP_BOOL_ARM_CRC32_INTRINSICS_AVAILABLE)
+#if (CRYPTOPP_BOOL_ARM_CRC32_AVAILABLE)
 	if (HasCRC32())
 	{
 		for(; !IsAligned<word32>(s) && n > 0; s++, n--)
@@ -299,7 +299,7 @@ CRC32C::CRC32C()
 
 void CRC32C::Update(const byte *s, size_t n)
 {
-#if CRYPTOPP_BOOL_SSE4_INTRINSICS_AVAILABLE
+#if CRYPTOPP_BOOL_SSE4_AVAILABLE
 	if (HasSSE4())
 	{
 		for(; !IsAligned<word32>(s) && n > 0; s++, n--)
@@ -313,7 +313,7 @@ void CRC32C::Update(const byte *s, size_t n)
 
 		return;
 	}
-#elif (CRYPTOPP_BOOL_ARM_CRC32_INTRINSICS_AVAILABLE)
+#elif (CRYPTOPP_BOOL_ARM_CRC32_AVAILABLE)
 	if (HasCRC32())
 	{
 		for(; !IsAligned<word32>(s) && n > 0; s++, n--)

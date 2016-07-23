@@ -14,47 +14,47 @@
 NAMESPACE_BEGIN(CryptoPP)
 
 // Uncomment for benchmarking C++ against NEON
-// #undef CRYPTOPP_BOOL_NEON_INTRINSICS_AVAILABLE
+// #undef CRYPTOPP_BOOL_NEON_AVAILABLE
 
 // Visual Studio needs both VS2005 (1400) and _M_64 for SSE2 and _mm_set_epi64x()
 //  http://msdn.microsoft.com/en-us/library/y0dh78ez%28v=vs.80%29.aspx
 #if defined(_MSC_VER) && ((_MSC_VER < 1400) || !defined(_M_X64))
-# undef CRYPTOPP_BOOL_SSE2_INTRINSICS_AVAILABLE
+# undef CRYPTOPP_BOOL_SSE2_AVAILABLE
 #endif
 
 // Visual Studio needs VS2008 (1500); no dependency on _mm_set_epi64x()
 //   http://msdn.microsoft.com/en-us/library/bb892950%28v=vs.90%29.aspx
 #if defined(_MSC_VER) && (_MSC_VER < 1500)
-# undef CRYPTOPP_BOOL_SSE4_INTRINSICS_AVAILABLE
+# undef CRYPTOPP_BOOL_SSE4_AVAILABLE
 #endif
 
 // Apple Clang 6.0/Clang 3.5 does not have SSSE3 intrinsics
 //   http://llvm.org/bugs/show_bug.cgi?id=20213
 #if (defined(CRYPTOPP_APPLE_CLANG_VERSION) && (CRYPTOPP_APPLE_CLANG_VERSION <= 60000)) || (defined(CRYPTOPP_LLVM_CLANG_VERSION) && (CRYPTOPP_LLVM_CLANG_VERSION <= 30500))
-# undef CRYPTOPP_BOOL_SSE4_INTRINSICS_AVAILABLE
+# undef CRYPTOPP_BOOL_SSE4_AVAILABLE
 #endif
 
 // SunCC needs 12.4 for _mm_set_epi64x, _mm_blend_epi16, _mm_shuffle_epi16, etc
 #if defined(__SUNPRO_CC) && (__SUNPRO_CC < 0x5130)
-# undef CRYPTOPP_BOOL_SSE2_INTRINSICS_AVAILABLE
-# undef CRYPTOPP_BOOL_SSE4_INTRINSICS_AVAILABLE
+# undef CRYPTOPP_BOOL_SSE2_AVAILABLE
+# undef CRYPTOPP_BOOL_SSE4_AVAILABLE
 #endif
 
 // C/C++ implementation
 static void BLAKE2_CXX_Compress32(const byte* input, BLAKE2_State<word32, false>& state);
 static void BLAKE2_CXX_Compress64(const byte* input, BLAKE2_State<word64, true>& state);
 
-#if CRYPTOPP_BOOL_SSE2_INTRINSICS_AVAILABLE
+#if CRYPTOPP_BOOL_SSE2_AVAILABLE
 static void BLAKE2_SSE2_Compress32(const byte* input, BLAKE2_State<word32, false>& state);
 static void BLAKE2_SSE2_Compress64(const byte* input, BLAKE2_State<word64, true>& state);
 #endif
 
-#if CRYPTOPP_BOOL_SSE4_INTRINSICS_AVAILABLE
+#if CRYPTOPP_BOOL_SSE4_AVAILABLE
 static void BLAKE2_SSE4_Compress32(const byte* input, BLAKE2_State<word32, false>& state);
 static void BLAKE2_SSE4_Compress64(const byte* input, BLAKE2_State<word64, true>& state);
 #endif
 
-#if CRYPTOPP_BOOL_NEON_INTRINSICS_AVAILABLE
+#if CRYPTOPP_BOOL_NEON_AVAILABLE
 static void BLAKE2_NEON_Compress32(const byte* input, BLAKE2_State<word32, false>& state);
 static void BLAKE2_NEON_Compress64(const byte* input, BLAKE2_State<word64, true>& state);
 #endif
@@ -156,17 +156,17 @@ typedef void (*pfnCompress64)(const byte*, BLAKE2_State<word64, true>&);
 
 pfnCompress64 InitializeCompress64Fn()
 {
-#if CRYPTOPP_BOOL_SSE4_INTRINSICS_AVAILABLE
+#if CRYPTOPP_BOOL_SSE4_AVAILABLE
 	if (HasSSE4())
 		return &BLAKE2_SSE4_Compress64;
 	else
 #endif
-#if CRYPTOPP_BOOL_SSE2_INTRINSICS_AVAILABLE
+#if CRYPTOPP_BOOL_SSE2_AVAILABLE
 	if (HasSSE2())
 		return &BLAKE2_SSE2_Compress64;
 	else
 #endif
-#if CRYPTOPP_BOOL_NEON_INTRINSICS_AVAILABLE
+#if CRYPTOPP_BOOL_NEON_AVAILABLE
 	if (HasNEON())
 		return &BLAKE2_NEON_Compress64;
 	else
@@ -176,17 +176,17 @@ pfnCompress64 InitializeCompress64Fn()
 
 pfnCompress32 InitializeCompress32Fn()
 {
-#if CRYPTOPP_BOOL_SSE4_INTRINSICS_AVAILABLE
+#if CRYPTOPP_BOOL_SSE4_AVAILABLE
 	if (HasSSE4())
 		return &BLAKE2_SSE4_Compress32;
 	else
 #endif
-#if CRYPTOPP_BOOL_SSE2_INTRINSICS_AVAILABLE
+#if CRYPTOPP_BOOL_SSE2_AVAILABLE
 	if (HasSSE2())
 		return &BLAKE2_SSE2_Compress32;
 	else
 #endif
-#if CRYPTOPP_BOOL_NEON_INTRINSICS_AVAILABLE
+#if CRYPTOPP_BOOL_NEON_AVAILABLE
 	if (HasNEON())
 		return &BLAKE2_NEON_Compress32;
 	else
@@ -614,7 +614,7 @@ void BLAKE2_CXX_Compress32(const byte* input, BLAKE2_State<word32, false>& state
 		state.h[i] = state.h[i] ^ ConditionalByteReverse(LittleEndian::ToEnum(), v[i] ^ v[i + 8]);
 }
 
-#if CRYPTOPP_BOOL_SSE2_INTRINSICS_AVAILABLE
+#if CRYPTOPP_BOOL_SSE2_AVAILABLE
 static void BLAKE2_SSE2_Compress32(const byte* input, BLAKE2_State<word32, false>& state)
 {
   word32 m0, m1, m2, m3, m4, m5, m6, m7, m8, m9, m10, m11, m12, m13, m14, m15;
@@ -1917,9 +1917,9 @@ static void BLAKE2_SSE2_Compress64(const byte* input, BLAKE2_State<word64, true>
   _mm_storeu_si128((__m128i *)(void*)(&state.h[4]), _mm_xor_si128(_mm_loadu_si128((const __m128i*)(const void*)(&state.h[4])), row2l));
   _mm_storeu_si128((__m128i *)(void*)(&state.h[6]), _mm_xor_si128(_mm_loadu_si128((const __m128i*)(const void*)(&state.h[6])), row2h));
 }
-#endif  // CRYPTOPP_BOOL_SSE2_INTRINSICS_AVAILABLE
+#endif  // CRYPTOPP_BOOL_SSE2_AVAILABLE
 
-#if CRYPTOPP_BOOL_SSE4_INTRINSICS_AVAILABLE
+#if CRYPTOPP_BOOL_SSE4_AVAILABLE
 static void BLAKE2_SSE4_Compress32(const byte* input, BLAKE2_State<word32, false>& state)
 {
   __m128i row1, row2, row3, row4;
@@ -3449,9 +3449,9 @@ static void BLAKE2_SSE4_Compress64(const byte* input, BLAKE2_State<word64, true>
   _mm_storeu_si128((__m128i *)(void*)(&state.h[4]), _mm_xor_si128(_mm_loadu_si128((const __m128i*)(const void*)(&state.h[4])), row2l));
   _mm_storeu_si128((__m128i *)(void*)(&state.h[6]), _mm_xor_si128(_mm_loadu_si128((const __m128i*)(const void*)(&state.h[6])), row2h));
 }
-#endif  // CRYPTOPP_BOOL_SSE4_INTRINSICS_AVAILABLE
+#endif  // CRYPTOPP_BOOL_SSE4_AVAILABLE
 
-#if CRYPTOPP_BOOL_NEON_INTRINSICS_AVAILABLE
+#if CRYPTOPP_BOOL_NEON_AVAILABLE
 
 // Reverse words for ARM (use arguments to _mm_set_epi32 without reversing them).
 #define vld1q_u32_rev(x, a,b,c,d) d[1]=c[0],d[2]=b[0],d[3]=a[0]; x = vld1q_u32(d);
@@ -5065,7 +5065,7 @@ static void BLAKE2_NEON_Compress64(const byte* input, BLAKE2_State<word64, true>
   vst1q_u64((uint64_t*)&state.h[4], veorq_u64(vld1q_u64((const uint64_t*)&state.h[4]), row2l));
   vst1q_u64((uint64_t*)&state.h[6], veorq_u64(vld1q_u64((const uint64_t*)&state.h[6]), row2h));
 }
-#endif  // CRYPTOPP_BOOL_NEON_INTRINSICS_AVAILABLE
+#endif  // CRYPTOPP_BOOL_NEON_AVAILABLE
 
 template class BLAKE2_Base<word32, false>;
 template class BLAKE2_Base<word64, true>;
