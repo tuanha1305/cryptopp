@@ -444,7 +444,7 @@ NAMESPACE_END
 	#endif
 
 	#if defined(__GNUC__) && defined(__x86_64__)
-		#define CRYPTOPP_X64_AVAILABLE
+		#define CRYPTOPP_X64_ASM_AVAILABLE
 	#endif
 
 	#if (defined(CRYPTOPP_MSVC6PP_OR_LATER) || CRYPTOPP_GCC_VERSION >= 30300 || defined(__SSE2__))
@@ -586,7 +586,7 @@ NAMESPACE_END
 // Undo the ASM and Intrinsic related defines due to X32.
 #if CRYPTOPP_BOOL_X32
 # undef CRYPTOPP_BOOL_X64
-# undef CRYPTOPP_X64_AVAILABLE
+# undef CRYPTOPP_X64_ASM_AVAILABLE
 # undef CRYPTOPP_X64_MASM_AVAILABLE
 #endif
 

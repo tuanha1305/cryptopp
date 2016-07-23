@@ -16,7 +16,7 @@
 #if (defined(CRYPTOPP_LLVM_CLANG_VERSION) && (CRYPTOPP_LLVM_CLANG_VERSION < 30400)) || defined(CRYPTOPP_CLANG_INTEGRATED_ASSEMBLER) || (__SUNPRO_CC <= 0x5140)
 # undef CRYPTOPP_X86_AVAILABLE
 # undef CRYPTOPP_X32_AVAILABLE
-# undef CRYPTOPP_X64_AVAILABLE
+# undef CRYPTOPP_X64_ASM_AVAILABLE
 # undef CRYPTOPP_BOOL_SSE2_AVAILABLE
 # undef CRYPTOPP_BOOL_SSSE3_AVAILABLE
 # undef CRYPTOPP_BOOL_AESNI_AVAILABLE
@@ -707,7 +707,7 @@ size_t GCM_Base::AuthenticateBlocks(const byte *data, size_t len)
 		AS2(	psrldq	xmm0, 15						)
 #if (CRYPTOPP_LLVM_CLANG_VERSION >= 30600) || (CRYPTOPP_APPLE_CLANG_VERSION >= 70000)
 		AS2(	movd	edi, xmm0						)
-#elif (defined(CRYPTOPP_LLVM_CLANG_VERSION) || defined(CRYPTOPP_APPLE_CLANG_VERSION)) && defined(CRYPTOPP_X64_AVAILABLE)
+#elif (defined(CRYPTOPP_LLVM_CLANG_VERSION) || defined(CRYPTOPP_APPLE_CLANG_VERSION)) && defined(CRYPTOPP_X64_ASM_AVAILABLE)
 		AS2(	mov		WORD_REG(di), xmm0				)
 #else	// GNU Assembler
 		AS2(	movd	WORD_REG(di), xmm0				)
@@ -722,7 +722,7 @@ size_t GCM_Base::AuthenticateBlocks(const byte *data, size_t len)
 		AS2(	psrldq	xmm1, 15						)
 #if (CRYPTOPP_LLVM_CLANG_VERSION >= 30600) || (CRYPTOPP_APPLE_CLANG_VERSION >= 70000)
 		AS2(	movd	edi, xmm1						)
-#elif (defined(CRYPTOPP_LLVM_CLANG_VERSION) || defined(CRYPTOPP_APPLE_CLANG_VERSION)) && defined(CRYPTOPP_X64_AVAILABLE)
+#elif (defined(CRYPTOPP_LLVM_CLANG_VERSION) || defined(CRYPTOPP_APPLE_CLANG_VERSION)) && defined(CRYPTOPP_X64_ASM_AVAILABLE)
 		AS2(	mov		WORD_REG(di), xmm1				)
 #else
 		AS2(	movd	WORD_REG(di), xmm1				)
@@ -733,7 +733,7 @@ size_t GCM_Base::AuthenticateBlocks(const byte *data, size_t len)
 		AS2(	psrldq	xmm0, 15						)
 #if (CRYPTOPP_LLVM_CLANG_VERSION >= 30600) || (CRYPTOPP_APPLE_CLANG_VERSION >= 70000)
 		AS2(	movd	edi, xmm0						)
-#elif (defined(CRYPTOPP_LLVM_CLANG_VERSION) || defined(CRYPTOPP_APPLE_CLANG_VERSION)) && defined(CRYPTOPP_X64_AVAILABLE)
+#elif (defined(CRYPTOPP_LLVM_CLANG_VERSION) || defined(CRYPTOPP_APPLE_CLANG_VERSION)) && defined(CRYPTOPP_X64_ASM_AVAILABLE)
 		AS2(	mov		WORD_REG(di), xmm0				)
 #else
 		AS2(	movd	WORD_REG(di), xmm0				)
