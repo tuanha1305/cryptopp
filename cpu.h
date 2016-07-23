@@ -35,120 +35,27 @@
 
 #else
 
-# if CRYPTOPP_BOOL_SSE2_INTRINSICS_AVAILABLE
+// typedef's for __m128i, __v2di, __v4si and friends
+# if defined(CRYPTOPP_UNIX_AVAILABLE) && defined(__GNUC__)
+#  include <x86intrin.h>
+# endif
+# if defined(CRYPTOPP_UNIX_AVAILABLE) && CRYPTOPP_BOOL_SSE2_INTRINSICS_AVAILABLE
 #  include <emmintrin.h>
 # endif
-
-// #if defined(CRYPTOPP_GCC_VERSION) && (CRYPTOPP_GCC_VERSION < 50000)
-// typedef int __v4si __attribute__ ((__vector_size__ (16)));
-// typedef long long __v2di __attribute__ ((__vector_size__ (16)));
-// typedef long long __m128i __attribute__ ((__vector_size__ (16), __may_alias__));
-// #endif
-
-#if CRYPTOPP_BOOL_AESNI_INTRINSICS_AVAILABLE
-
-// GCC 5.3/i686 fails to declare __m128 in the headers we use when compiling with -std=c++11 or -std=c++14.
-// Consequently, our _mm_shuffle_epi8, _mm_extract_epi32, etc fails to compile.
-#if defined(__has_include)
-# if __has_include(<xmmintrin.h>)
-#  include <xmmintrin.h>
+# if defined(CRYPTOPP_UNIX_AVAILABLE) && CRYPTOPP_BOOL_SSE3_INTRINSICS_AVAILABLE
+#  include <emmintrin.h> 
+#  include <tmmintrin.h>
 # endif
-#endif
-
-// PUSHFB needs Clang 3.3 and Apple Clang 5.0.
-#if !defined(__GNUC__) || defined(__SSSE3__)|| defined(__INTEL_COMPILER) || (CRYPTOPP_LLVM_CLANG_VERSION >= 30300) || (CRYPTOPP_APPLE_CLANG_VERSION >= 50000)
-#include <tmmintrin.h>
-#else
-NAMESPACE_BEGIN(CryptoPP)
-__inline __m128i __attribute__((__gnu_inline__, __always_inline__, __artificial__))
-_mm_shuffle_epi8 (__m128i a, __m128i b)
-{
-	asm ("pshufb %1, %0" : "+x"(a) : "xm"(b));
-  	return a;
-}
-NAMESPACE_END
-#endif // tmmintrin.h
-
-// PEXTRD needs Clang 3.3 and Apple Clang 5.0.
-#if !defined(__GNUC__) || defined(__SSE4_1__)|| defined(__INTEL_COMPILER) || (CRYPTOPP_LLVM_CLANG_VERSION >= 30300) || (CRYPTOPP_APPLE_CLANG_VERSION >= 50000)
-#include <smmintrin.h>
-#else
-NAMESPACE_BEGIN(CryptoPP)
-__inline int __attribute__((__gnu_inline__, __always_inline__, __artificial__))
-_mm_extract_epi32 (__m128i a, const int i)
-{
-	int r;
-	asm ("pextrd %2, %1, %0" : "=rm"(r) : "x"(a), "i"(i));
-  	return r;
-}
-__inline __m128i __attribute__((__gnu_inline__, __always_inline__, __artificial__))
-_mm_insert_epi32 (__m128i a, int b, const int i)
-{
-	asm ("pinsrd %2, %1, %0" : "+x"(a) : "rm"(b), "i"(i));
-  	return a;
-}
-NAMESPACE_END
-#endif // smmintrin.h
-
-// AES needs Clang 2.8 and Apple Clang 4.6. PCLMUL needs Clang 3.4 and Apple Clang 6.0
-#if !defined(__GNUC__) || (defined(__AES__) && defined(__PCLMUL__)) || defined(__INTEL_COMPILER) || (CRYPTOPP_LLVM_CLANG_VERSION >= 30400) || (CRYPTOPP_APPLE_CLANG_VERSION >= 60000)
-#include <wmmintrin.h>
-#else
-NAMESPACE_BEGIN(CryptoPP)
-__inline __m128i __attribute__((__gnu_inline__, __always_inline__, __artificial__))
-_mm_clmulepi64_si128 (__m128i a, __m128i b, const int i)
-{
-	asm ("pclmulqdq %2, %1, %0" : "+x"(a) : "xm"(b), "i"(i));
-  	return a;
-}
-__inline __m128i __attribute__((__gnu_inline__, __always_inline__, __artificial__))
-_mm_aeskeygenassist_si128 (__m128i a, const int i)
-{
-	__m128i r;
-	asm ("aeskeygenassist %2, %1, %0" : "=x"(r) : "xm"(a), "i"(i));
-  	return r;
-}
-__inline __m128i __attribute__((__gnu_inline__, __always_inline__, __artificial__))
-_mm_aesimc_si128 (__m128i a)
-{
-	__m128i r;
-	asm ("aesimc %1, %0" : "=x"(r) : "xm"(a));
-  	return r;
-}
-__inline __m128i __attribute__((__gnu_inline__, __always_inline__, __artificial__))
-_mm_aesenc_si128 (__m128i a, __m128i b)
-{
-	asm ("aesenc %1, %0" : "+x"(a) : "xm"(b));
-  	return a;
-}
-__inline __m128i __attribute__((__gnu_inline__, __always_inline__, __artificial__))
-_mm_aesenclast_si128 (__m128i a, __m128i b)
-{
-	asm ("aesenclast %1, %0" : "+x"(a) : "xm"(b));
-  	return a;
-}
-__inline __m128i __attribute__((__gnu_inline__, __always_inline__, __artificial__))
-_mm_aesdec_si128 (__m128i a, __m128i b)
-{
-	asm ("aesdec %1, %0" : "+x"(a) : "xm"(b));
-  	return a;
-}
-__inline __m128i __attribute__((__gnu_inline__, __always_inline__, __artificial__))
-_mm_aesdeclast_si128 (__m128i a, __m128i b)
-{
-	asm ("aesdeclast %1, %0" : "+x"(a) : "xm"(b));
-  	return a;
-}
-NAMESPACE_END
-#endif // wmmintrin.h
-#endif // CRYPTOPP_BOOL_AESNI_INTRINSICS_AVAILABLE
-
-#if (CRYPTOPP_BOOL_SSE4_INTRINSICS_AVAILABLE) && ((__SUNPRO_CC >= 0x5110) || defined(__clang__) || defined(__INTEL_COMPILER))
-# include <emmintrin.h>    // _mm_set_epi64x
-# include <smmintrin.h>    // _mm_blend_epi16
-# include <tmmintrin.h>    // _mm_shuffle_epi16
-# include <nmmintrin.h>    // _mm_crc32_u{8|16|32}
-#endif
+# if defined(CRYPTOPP_UNIX_AVAILABLE) && CRYPTOPP_BOOL_AESNI_INTRINSICS_AVAILABLE
+#  include <emmintrin.h> 
+#  include <wmmintrin.h>
+# endif
+# if defined(CRYPTOPP_UNIX_AVAILABLE) && CRYPTOPP_BOOL_SSE4_INTRINSICS_AVAILABLE
+#  include <emmintrin.h>    // _mm_set_epi64x
+#  include <smmintrin.h>    // _mm_blend_epi16
+#  include <tmmintrin.h>    // _mm_shuffle_epi16
+#  include <nmmintrin.h>    // _mm_crc32_u{8|16|32}
+# endif
 
 NAMESPACE_BEGIN(CryptoPP)
 
