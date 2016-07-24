@@ -435,7 +435,7 @@ NAMESPACE_END
 #if !defined(CRYPTOPP_DISABLE_ASM)
 # if (defined(_MSC_VER) && (defined(_M_IX86) || defined(_M_X64))) || (defined(__GNUC__) && (defined(__i386__) || defined(__i586__) || defined(__i686__) || defined(__x86_64__)))
 
-	#define CRYPTOPP_X86_AVAILABLE 1
+	#define CRYPTOPP_X86_ASM_AVAILABLE 1
 
 	#if (defined(_MSC_VER) && defined(_M_X64))
 		#define CRYPTOPP_X64_MASM_AVAILABLE 1
