@@ -34,12 +34,6 @@ NAMESPACE_BEGIN(CryptoPP)
 # undef CRYPTOPP_BOOL_SSE4_AVAILABLE
 #endif
 
-// SunCC needs 12.4 for _mm_set_epi64x, _mm_blend_epi16, _mm_shuffle_epi16, etc
-#if defined(__SUNPRO_CC) && (__SUNPRO_CC < 0x5130)
-# undef CRYPTOPP_BOOL_SSE2_AVAILABLE
-# undef CRYPTOPP_BOOL_SSE4_AVAILABLE
-#endif
-
 // C/C++ implementation
 static void BLAKE2_CXX_Compress32(const byte* input, BLAKE2_State<word32, false>& state);
 static void BLAKE2_CXX_Compress64(const byte* input, BLAKE2_State<word64, true>& state);
