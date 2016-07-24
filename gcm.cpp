@@ -84,8 +84,7 @@ inline static void SSE2_Xor16(byte *a, const byte *b, const byte *c)
 	assert(IsAlignedOn(a,GetAlignmentOf<__m128i>()));
 	assert(IsAlignedOn(b,GetAlignmentOf<__m128i>()));
 	assert(IsAlignedOn(c,GetAlignmentOf<__m128i>()));
-
-	asm ("movdqa %1, %%xmm0; pxor %2, %%xmm0; movdqa %%xmm0, %0;" : "=m" (a[0]) : "m"(b[0]), "m"(c[0]));
+	*(__m128i *)(void *)a = _mm_xor_si128(*(__m128i *)(void *)b, *(__m128i *)(void *)c);
 }
 #endif
 
