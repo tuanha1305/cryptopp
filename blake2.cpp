@@ -34,6 +34,21 @@ NAMESPACE_BEGIN(CryptoPP)
 # undef CRYPTOPP_BOOL_SSE4_AVAILABLE
 #endif
 
+// Sun Studio 12.3 and earlier lack _mm_set_epi64x.
+#if defined(__SUNPRO_CC) && (__SUNPRO_CC < 0x5130)
+inline __m128i _mm_set_epi64x(const uint64_t a, const uint64_t b)
+{
+	union INT_128_64 {
+		__m128i   v128;
+		uint64_t  v64[2];
+	};
+
+	INT_128_64 v;
+	v.v64[0] = a; v.v64[1] = b;
+	return v.v128;
+}
+#endif
+
 // C/C++ implementation
 static void BLAKE2_CXX_Compress32(const byte* input, BLAKE2_State<word32, false>& state);
 static void BLAKE2_CXX_Compress64(const byte* input, BLAKE2_State<word64, true>& state);
