@@ -141,7 +141,7 @@ void ChaCha_Policy<R>::OperateKeystream(KeystreamOperation operation, byte *outp
 #endif
 
 		++m_state[12];
-		m_state[13] += !!(m_state[12] == 0);
+		m_state[13] += static_cast<word32>(m_state[12] == 0);
 	}
 }
 
