@@ -482,12 +482,12 @@ static bool TryPMULL()
 # endif
 #else
 	return false;
-#endif  // CRYPTOPP_BOOL_CRYPTO_INTRINSICS_AVAILABLE
+#endif  // CRYPTOPP_BOOL_ARM_CRYPTO_AVAILABLE
 }
 
 static bool TryPMULL()
 {
-#if (CRYPTOPP_BOOL_ARM_CRYPTO_INTRINSICS_AVAILABLE)
+#if (CRYPTOPP_BOOL_ARM_CRYPTO_AVAILABLE)
 # if defined(CRYPTOPP_MS_STYLE_INLINE_ASSEMBLY)
 	volatile bool result = true;
 	__try
@@ -535,7 +535,7 @@ static bool TryPMULL()
 # endif
 #else
 	return false;
-#endif  // CRYPTOPP_BOOL_CRYPTO_INTRINSICS_AVAILABLE
+#endif  // CRYPTOPP_BOOL_ARM_CRYPTO_AVAILABLE
 }
 
 static bool TryCRC32()
