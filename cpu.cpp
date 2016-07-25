@@ -485,59 +485,6 @@ static bool TryPMULL()
 #endif  // CRYPTOPP_BOOL_ARM_CRYPTO_AVAILABLE
 }
 
-static bool TryPMULL()
-{
-#if (CRYPTOPP_BOOL_ARM_CRYPTO_AVAILABLE)
-# if defined(CRYPTOPP_MS_STYLE_INLINE_ASSEMBLY)
-	volatile bool result = true;
-	__try
-	{
-		const poly64_t a1={1}, b1={2};
-		const poly64x2_t a2={1}, b2={2};
-		const poly128_t r1 = vmull_p64(a1, b1);
-		const poly128_t r2 = vmull_high_p64(a2, b2);
-
-		result = (r1 != r2);
-	}
-	__except (EXCEPTION_EXECUTE_HANDLER)
-	{
-		return false;
-	}
-	return result;
-# else
-	// longjmp and clobber warnings. Volatile is required.
-	// http://github.com/weidai11/cryptopp/issues/24 and http://stackoverflow.com/q/7721854
-	volatile bool result = true;
-
-	volatile SigHandler oldHandler = signal(SIGILL, SigIllHandlerPMULL);
-	if (oldHandler == SIG_ERR)
-		return false;
-
-	volatile sigset_t oldMask;
-	if (sigprocmask(0, NULL, (sigset_t*)&oldMask))
-		return false;
-
-	if (setjmp(s_jmpNoPMULL))
-		result = false;
-	else
-	{
-		const poly64_t a1={1}, b1={2};
-		const poly64x2_t a2={1}, b2={2};
-		const poly128_t r1 = vmull_p64(a1, b1);
-		const poly128_t r2 = vmull_high_p64(a2, b2);
-
-		result = (r1 != r2);
-	}
-
-	sigprocmask(SIG_SETMASK, (sigset_t*)&oldMask, NULL);
-	signal(SIGILL, oldHandler);
-	return result;
-# endif
-#else
-	return false;
-#endif  // CRYPTOPP_BOOL_ARM_CRYPTO_AVAILABLE
-}
-
 static bool TryCRC32()
 {
 #if (CRYPTOPP_BOOL_ARM_CRC32_AVAILABLE)
