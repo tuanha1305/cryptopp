@@ -500,7 +500,7 @@ static bool TryPMULL()
 # endif
 #else
 	return false;
-#endif  // CRYPTOPP_BOOL_ARM_CRYPTO_INTRINSICS_AVAILABLE
+#endif  // CRYPTOPP_BOOL_ARM_CRYPTO_AVAILABLE
 }
 
 static bool TryCRC32()
