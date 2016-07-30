@@ -211,13 +211,23 @@ typedef unsigned char byte;		// put in global namespace to avoid ambiguity with 
 
 NAMESPACE_BEGIN(CryptoPP)
 
+// Typedefs for Unix and Linux from http://www.unix.org/whitepapers/64bit.html
 typedef unsigned short word16;
-typedef unsigned int word32;
 
+// 32-bit types and ILP64 data model
+#if defined(_MSC_VER) || defined(__BORLANDC__)
+	typedef unsigned int word32;
+#elif _ILP64 || __ILP64__
+	typedef uint32_t word32;    // non-portable; should be OK
+#else
+	typedef unsigned int word32;
+#endif
+
+// 64-bit types, LP64 and ILP64 data models
 #if defined(_MSC_VER) || defined(__BORLANDC__)
 	typedef unsigned __int64 word64;
 	#define W64LIT(x) x##ui64
-#elif ((__arm64__ || __aarch64__) && (_LP64 || __LP64__))
+#elif _LP64 || __LP64__ || _ILP64 || __ILP64__
 	typedef unsigned long word64;
 	#define W64LIT(x) x##UL
 #else
