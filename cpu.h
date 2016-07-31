@@ -2,153 +2,77 @@
 
 //! \file cpu.h
 //! \brief Functions for CPU features and intrinsics
-//! \details The functions are used in X86/X32/X64 and NEON code paths
+//! \details The functions are used in X86/X32/X64 and NEON code paths.
+
+//! \details Commit e8d34649d8f71e99e7ff97d9 made a tradeoff and removed library provided intrinsics
+//!   using builtin functions.  With library intrinsics, Debian Jessie GCC 4.8 and 4.9 experienced
+//!   compile failures in Debug builds, and builds with -std=c++11 and -std=c++14. Without them,
+//!   downlevel GCCs, like 4.3 and 4.4, will likely experience issues or less-efficient code.
+//! The library provided intrinsics were _mm_shuffle_epi8, _mm_extract_epi32, _mm_insert_epi32,
+//!   _mm_clmulepi64_si128, _mm_aeskeygenassist_si128, _mm_aesimc_si128, _mm_aesenc_si128,
+//!   _mm_aesenclast_si128, _mm_aesdeclast_si128.
 
 #ifndef CRYPTOPP_CPU_H
 #define CRYPTOPP_CPU_H
 
 #include "config.h"
 
-#if (CRYPTOPP_BOOL_ARM32 || CRYPTOPP_BOOL_ARM64)
-# if defined(_MSC_VER) || defined(__BORLANDC__)
+#ifndef CRYPTOPP_DISABLE_ASM
+
+// Both ARM32/ARM64 and X86/X32/X64
+#if defined(_MSC_VER) || defined(__BORLANDC__)
 #  define CRYPTOPP_MS_STYLE_INLINE_ASSEMBLY
-# else
+#else
 #  define CRYPTOPP_GNU_STYLE_INLINE_ASSEMBLY
-# endif
-# if CRYPTOPP_BOOL_NEON_INTRINSICS_AVAILABLE
-#  include <arm_neon.h>
-# endif
-# if (CRYPTOPP_BOOL_ARM_CRYPTO_INTRINSICS_AVAILABLE || CRYPTOPP_BOOL_ARM_CRC32_INTRINSICS_AVAILABLE)
-#  include <stdint.h>
-#  if (defined(__ARM_ACLE) || defined(__GNUC__)) && !defined(__APPLE__)
-#   include <arm_acle.h>
+#endif
+
+// ARM32/ARM64 includes
+#if (CRYPTOPP_BOOL_ARM32 || CRYPTOPP_BOOL_ARM64)
+#  if CRYPTOPP_BOOL_NEON_AVAILABLE
+#    include <arm_neon.h>
 #  endif
-# endif
-#endif  // ARM-32 or ARM-64
+#  if (CRYPTOPP_BOOL_ARM_CRYPTO_AVAILABLE || CRYPTOPP_BOOL_ARM_CRC32_AVAILABLE)
+#    include <stdint.h>
+#    if (defined(__ARM_ACLE) || defined(__GNUC__)) && !defined(__APPLE__)
+#      include <arm_acle.h>
+#    endif
+#  endif
+#endif  // ARM32 or ARM64
+
+// X86/X32/X64 includes
+#if (CRYPTOPP_BOOL_X86 || CRYPTOPP_BOOL_X32 || CRYPTOPP_BOOL_X64)
+#  if defined(__GNUC__)
+#    include <x86intrin.h>
+#  endif
+#  if CRYPTOPP_BOOL_SSE2_AVAILABLE
+#    include <emmintrin.h>
+#  endif
+#  if CRYPTOPP_BOOL_SSE3_AVAILABLE
+#    include <emmintrin.h>
+#    include <tmmintrin.h>
+#  endif
+#  if CRYPTOPP_BOOL_AESNI_AVAILABLE
+#    include <emmintrin.h>
+#    include <wmmintrin.h>
+#  endif
+#  if CRYPTOPP_BOOL_SSE4_AVAILABLE
+#    include <emmintrin.h>    // _mm_set_epi64x
+#    include <smmintrin.h>    // _mm_blend_epi16
+#    include <tmmintrin.h>    // _mm_shuffle_epi16
+#    include <nmmintrin.h>    // _mm_crc32_u{8|16|32}
+#  endif
+#endif // X86, X32 and X64
+
+#endif // CRYPTOPP_DISABLE_ASM
 
 #ifdef CRYPTOPP_GENERATE_X64_MASM
 
 #define CRYPTOPP_X86_ASM_AVAILABLE
 #define CRYPTOPP_BOOL_X64 1
-#define CRYPTOPP_BOOL_SSE2_ASM_AVAILABLE 1
+#define CRYPTOPP_BOOL_SSE2_AVAILABLE 1
 #define NAMESPACE_END
 
 #else
-
-# if CRYPTOPP_BOOL_SSE2_INTRINSICS_AVAILABLE
-#  include <emmintrin.h>
-# endif
-
-// #if defined(CRYPTOPP_GCC_VERSION) && (CRYPTOPP_GCC_VERSION < 50000)
-// typedef int __v4si __attribute__ ((__vector_size__ (16)));
-// typedef long long __v2di __attribute__ ((__vector_size__ (16)));
-// typedef long long __m128i __attribute__ ((__vector_size__ (16), __may_alias__));
-// #endif
-
-#if CRYPTOPP_BOOL_AESNI_INTRINSICS_AVAILABLE
-
-// GCC 5.3/i686 fails to declare __m128 in the headers we use when compiling with -std=c++11 or -std=c++14.
-// Consequently, our _mm_shuffle_epi8, _mm_extract_epi32, etc fails to compile.
-#if defined(__has_include)
-# if __has_include(<xmmintrin.h>)
-#  include <xmmintrin.h>
-# endif
-#endif
-
-// PUSHFB needs Clang 3.3 and Apple Clang 5.0.
-#if !defined(__GNUC__) || defined(__SSSE3__)|| defined(__INTEL_COMPILER) || (CRYPTOPP_LLVM_CLANG_VERSION >= 30300) || (CRYPTOPP_APPLE_CLANG_VERSION >= 50000)
-#include <tmmintrin.h>
-#else
-NAMESPACE_BEGIN(CryptoPP)
-__inline __m128i __attribute__((__gnu_inline__, __always_inline__, __artificial__))
-_mm_shuffle_epi8 (__m128i a, __m128i b)
-{
-	asm ("pshufb %1, %0" : "+x"(a) : "xm"(b));
-  	return a;
-}
-NAMESPACE_END
-#endif // tmmintrin.h
-
-// PEXTRD needs Clang 3.3 and Apple Clang 5.0.
-#if !defined(__GNUC__) || defined(__SSE4_1__)|| defined(__INTEL_COMPILER) || (CRYPTOPP_LLVM_CLANG_VERSION >= 30300) || (CRYPTOPP_APPLE_CLANG_VERSION >= 50000)
-#include <smmintrin.h>
-#else
-NAMESPACE_BEGIN(CryptoPP)
-__inline int __attribute__((__gnu_inline__, __always_inline__, __artificial__))
-_mm_extract_epi32 (__m128i a, const int i)
-{
-	int r;
-	asm ("pextrd %2, %1, %0" : "=rm"(r) : "x"(a), "i"(i));
-  	return r;
-}
-__inline __m128i __attribute__((__gnu_inline__, __always_inline__, __artificial__))
-_mm_insert_epi32 (__m128i a, int b, const int i)
-{
-	asm ("pinsrd %2, %1, %0" : "+x"(a) : "rm"(b), "i"(i));
-  	return a;
-}
-NAMESPACE_END
-#endif // smmintrin.h
-
-// AES needs Clang 2.8 and Apple Clang 4.6. PCLMUL needs Clang 3.4 and Apple Clang 6.0
-#if !defined(__GNUC__) || (defined(__AES__) && defined(__PCLMUL__)) || defined(__INTEL_COMPILER) || (CRYPTOPP_LLVM_CLANG_VERSION >= 30400) || (CRYPTOPP_APPLE_CLANG_VERSION >= 60000)
-#include <wmmintrin.h>
-#else
-NAMESPACE_BEGIN(CryptoPP)
-__inline __m128i __attribute__((__gnu_inline__, __always_inline__, __artificial__))
-_mm_clmulepi64_si128 (__m128i a, __m128i b, const int i)
-{
-	asm ("pclmulqdq %2, %1, %0" : "+x"(a) : "xm"(b), "i"(i));
-  	return a;
-}
-__inline __m128i __attribute__((__gnu_inline__, __always_inline__, __artificial__))
-_mm_aeskeygenassist_si128 (__m128i a, const int i)
-{
-	__m128i r;
-	asm ("aeskeygenassist %2, %1, %0" : "=x"(r) : "xm"(a), "i"(i));
-  	return r;
-}
-__inline __m128i __attribute__((__gnu_inline__, __always_inline__, __artificial__))
-_mm_aesimc_si128 (__m128i a)
-{
-	__m128i r;
-	asm ("aesimc %1, %0" : "=x"(r) : "xm"(a));
-  	return r;
-}
-__inline __m128i __attribute__((__gnu_inline__, __always_inline__, __artificial__))
-_mm_aesenc_si128 (__m128i a, __m128i b)
-{
-	asm ("aesenc %1, %0" : "+x"(a) : "xm"(b));
-  	return a;
-}
-__inline __m128i __attribute__((__gnu_inline__, __always_inline__, __artificial__))
-_mm_aesenclast_si128 (__m128i a, __m128i b)
-{
-	asm ("aesenclast %1, %0" : "+x"(a) : "xm"(b));
-  	return a;
-}
-__inline __m128i __attribute__((__gnu_inline__, __always_inline__, __artificial__))
-_mm_aesdec_si128 (__m128i a, __m128i b)
-{
-	asm ("aesdec %1, %0" : "+x"(a) : "xm"(b));
-  	return a;
-}
-__inline __m128i __attribute__((__gnu_inline__, __always_inline__, __artificial__))
-_mm_aesdeclast_si128 (__m128i a, __m128i b)
-{
-	asm ("aesdeclast %1, %0" : "+x"(a) : "xm"(b));
-  	return a;
-}
-NAMESPACE_END
-#endif // wmmintrin.h
-#endif // CRYPTOPP_BOOL_AESNI_INTRINSICS_AVAILABLE
-
-#if (CRYPTOPP_BOOL_SSE4_INTRINSICS_AVAILABLE) && ((__SUNPRO_CC >= 0x5110) || defined(__clang__) || defined(__INTEL_COMPILER))
-# include <emmintrin.h>    // _mm_set_epi64x
-# include <smmintrin.h>    // _mm_blend_epi16
-# include <tmmintrin.h>    // _mm_shuffle_epi16
-# include <nmmintrin.h>    // _mm_crc32_u{8|16|32}
-#endif
 
 NAMESPACE_BEGIN(CryptoPP)
 

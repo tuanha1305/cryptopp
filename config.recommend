@@ -211,13 +211,23 @@ typedef unsigned char byte;		// put in global namespace to avoid ambiguity with 
 
 NAMESPACE_BEGIN(CryptoPP)
 
+// Typedefs for Unix and Linux from http://www.unix.org/whitepapers/64bit.html
 typedef unsigned short word16;
-typedef unsigned int word32;
 
+// 32-bit types and ILP64 data model
+#if defined(_MSC_VER) || defined(__BORLANDC__)
+	typedef unsigned int word32;
+#elif _ILP64 || __ILP64__
+	typedef uint32_t word32;    // non-portable; should be OK
+#else
+	typedef unsigned int word32;
+#endif
+
+// 64-bit types, LP64 and ILP64 data models
 #if defined(_MSC_VER) || defined(__BORLANDC__)
 	typedef unsigned __int64 word64;
 	#define W64LIT(x) x##ui64
-#elif ((__arm64__ || __aarch64__) && (_LP64 || __LP64__))
+#elif _LP64 || __LP64__ || _ILP64 || __ILP64__
 	typedef unsigned long word64;
 	#define W64LIT(x) x##UL
 #else
@@ -259,7 +269,7 @@ const lword LWORD_MAX = W64LIT(0xffffffffffffffff);
 
 // Clang due to "Inline assembly operands don't work with .intel_syntax", http://llvm.org/bugs/show_bug.cgi?id=24232
 //   TODO: supply the upper version when LLVM fixes it. We set it to 20.0 for compilation purposes.
-#if (defined(CRYPTOPP_LLVM_CLANG_VERSION) && CRYPTOPP_LLVM_CLANG_VERSION <= 200000) || (defined(CRYPTOPP_APPLE_CLANG_VERSION) && CRYPTOPP_APPLE_CLANG_VERSION <= 200000) || defined(CRYPTOPP_CLANG_INTEGRATED_ASSEMBLER)
+#if (defined(CRYPTOPP_LLVM_CLANG_VERSION) && CRYPTOPP_LLVM_CLANG_VERSION <= 200000) || (defined(CRYPTOPP_APPLE_CLANG_VERSION) && CRYPTOPP_APPLE_CLANG_VERSION <= 200000) || defined(CRYPTOPP_CLANG_INTEGRATED_ASSEMBLER) || (defined(__SUNPRO_CC) && (__SUNPRO_CC >= 0x5100))
 	#define CRYPTOPP_DISABLE_INTEL_ASM 1
 #endif
 
@@ -432,85 +442,94 @@ NAMESPACE_END
 // Sun Studio 12 provides GCC inline assembly, http://blogs.oracle.com/x86be/entry/gcc_style_asm_inlining_support
 // We can enable SSE2 for Sun Studio in the makefile with -D__SSE2__, but users may not compile with it.
 #if !defined(CRYPTOPP_DISABLE_ASM) && !defined(__SSE2__) && defined(__x86_64__) && (__SUNPRO_CC >= 0x5100)
-# define __SSE2__
+	# define __SSE2__
 #endif
 
-#if !defined(CRYPTOPP_DISABLE_ASM) && ((defined(_MSC_VER) && defined(_M_IX86)) || (defined(__GNUC__) && (defined(__i386__) || defined(__x86_64__))))
-	// C++Builder 2010 does not allow "call label" where label is defined within inline assembly
-	#define CRYPTOPP_X86_ASM_AVAILABLE
+#if !defined(CRYPTOPP_DISABLE_ASM)
+# if (defined(_MSC_VER) && (defined(_M_IX86) || defined(_M_X64))) || (defined(__GNUC__) && (defined(__i386__) || defined(__i586__) || defined(__i686__) || defined(__x86_64__)))
 
-	#if !defined(CRYPTOPP_DISABLE_SSE2) && (defined(CRYPTOPP_MSVC6PP_OR_LATER) || CRYPTOPP_GCC_VERSION >= 30300 || defined(__SSE2__))
-		#define CRYPTOPP_BOOL_SSE2_ASM_AVAILABLE 1
-	#else
-		#define CRYPTOPP_BOOL_SSE2_ASM_AVAILABLE 0
+	#define CRYPTOPP_X86_ASM_AVAILABLE 1
+
+	#if (defined(_MSC_VER) && defined(_M_X64))
+		#define CRYPTOPP_X64_MASM_AVAILABLE 1
 	#endif
 
-	// SSE3 was actually introduced in GNU as 2.17, which was released 6/23/2006, but we can't tell what version of binutils is installed.
-	// GCC 4.1.2 was released on 2/13/2007, so we'll use that as a proxy for the binutils version. Also see the output of
-	// `gcc -dM -E -march=native - < /dev/null | grep -i SSE` for preprocessor defines available.
-	#if !defined(CRYPTOPP_DISABLE_SSSE3) && (_MSC_VER >= 1400 || CRYPTOPP_GCC_VERSION >= 40102 || defined(__SSSE3__))
-		#define CRYPTOPP_BOOL_SSSE3_ASM_AVAILABLE 1
-	#else
-		#define CRYPTOPP_BOOL_SSSE3_ASM_AVAILABLE 0
+	#if defined(__GNUC__) && defined(__x86_64__)
+		#define CRYPTOPP_X64_ASM_AVAILABLE 1
 	#endif
+
+# endif
 #endif
 
-#if !defined(CRYPTOPP_DISABLE_ASM) && defined(_MSC_VER) && defined(_M_X64)
-	#define CRYPTOPP_X64_MASM_AVAILABLE
+// SSE2 was introduced in VC++6 and early GCC 3.
+#if !defined(CRYPTOPP_DISABLE_ASM) && !defined(CRYPTOPP_DISABLE_SSE2)
+# if (defined(CRYPTOPP_MSVC6PP_OR_LATER) || defined(__SSE2__))
+	#define CRYPTOPP_BOOL_SSE2_AVAILABLE 1
+# endif
+#endif
+#if !defined(CRYPTOPP_BOOL_SSE2_AVAILABLE)
+	# define CRYPTOPP_BOOL_SSE2_AVAILABLE 0
 #endif
 
-#if !defined(CRYPTOPP_DISABLE_ASM) && defined(__GNUC__) && defined(__x86_64__)
-	#define CRYPTOPP_X64_ASM_AVAILABLE
+// SSE3 was introduced in GNU as 2.17, which was released 6/23/2006, but we can't tell what version of binutils is installed.
+// GCC 4.1.2 was released on 2/13/2007, so we'll use that as a proxy for the binutils version.
+#if !defined(CRYPTOPP_DISABLE_ASM) && !defined(CRYPTOPP_DISABLE_SSSE3)
+# if (_MSC_VER >= 1400) || (defined(__SSE3__) && defined(__SSSE3__))
+		#define CRYPTOPP_BOOL_SSSE3_AVAILABLE 1
+# endif
+#endif
+#if !defined(CRYPTOPP_BOOL_SSSE3_AVAILABLE)
+	# define CRYPTOPP_BOOL_SSSE3_AVAILABLE 0
 #endif
 
-#if !defined(CRYPTOPP_DISABLE_SSE2) && (defined(CRYPTOPP_MSVC6PP_OR_LATER) || defined(__SSE2__)) && !defined(_M_ARM)
-	#define CRYPTOPP_BOOL_SSE2_INTRINSICS_AVAILABLE 1
-#else
-	#define CRYPTOPP_BOOL_SSE2_INTRINSICS_AVAILABLE 0
+// AES-NI and PCLMUL support availible in GCC 4.4 (http://gcc.gnu.org/gcc-4.4/changes.html) and
+//  MSVC 2008 SP1 (http://msdn.microsoft.com/en-us/library/bb892950%28v=vs.90%29.aspx)
+#if !defined(CRYPTOPP_DISABLE_ASM) && !defined(CRYPTOPP_DISABLE_AESNI)
+# if (_MSC_FULL_VER >= 150030729) || defined(__AES__)
+	#define CRYPTOPP_BOOL_AESNI_AVAILABLE 1
+# endif
+#endif
+#if !defined(CRYPTOPP_BOOL_AESNI_AVAILABLE)
+	# define CRYPTOPP_BOOL_AESNI_AVAILABLE 0
 #endif
 
-// Intrinsics availible in GCC 4.3 (http://gcc.gnu.org/gcc-4.3/changes.html) and
-//   MSVC 2008 (http://msdn.microsoft.com/en-us/library/bb892950%28v=vs.90%29.aspx)
-//   SunCC could generate SSE4 at 12.1, but the intrinsics are missing until 12.4. However, we don't know
-//     when to activate the code paths because SunCC does not indicate it in the preprocessor with macros.
-#if !defined(CRYPTOPP_DISABLE_SSE2) && !defined(CRYPTOPP_DISABLE_SSE4) && (((_MSC_VER >= 1500) && !defined(_M_ARM)) || (defined(__SSE4_1__) && defined(__SSE4_2__)))
-	#define CRYPTOPP_BOOL_SSE4_INTRINSICS_AVAILABLE 1
-#else
-	#define CRYPTOPP_BOOL_SSE4_INTRINSICS_AVAILABLE 0
+// SSE4.1 and SSE4.2 support availible in GCC 4.3 (http://gcc.gnu.org/gcc-4.3/changes.html) and
+//  MSVC 2008 (http://msdn.microsoft.com/en-us/library/bb892950%28v=vs.90%29.aspx)
+#if !defined(CRYPTOPP_DISABLE_ASM) && !defined(CRYPTOPP_DISABLE_SSE4)
+# if ((_MSC_VER >= 1500) && defined(_M_IX86) || defined(_M_X64)) || (defined(__SSE4_1__) && defined(__SSE4_2__))
+	#define CRYPTOPP_BOOL_SSE4_AVAILABLE 1
+# endif
 #endif
-
-#if !defined(CRYPTOPP_DISABLE_SSSE3) && !defined(CRYPTOPP_DISABLE_AESNI) && CRYPTOPP_BOOL_SSE2_INTRINSICS_AVAILABLE && (CRYPTOPP_GCC_VERSION >= 40400 || _MSC_FULL_VER >= 150030729 || __INTEL_COMPILER >= 1110 || defined(__AES__))
-	#define CRYPTOPP_BOOL_AESNI_INTRINSICS_AVAILABLE 1
-#else
-	#define CRYPTOPP_BOOL_AESNI_INTRINSICS_AVAILABLE 0
+#if !defined(CRYPTOPP_BOOL_SSE4_AVAILABLE)
+	# define CRYPTOPP_BOOL_SSE4_AVAILABLE 0
 #endif
 
 // Requires ARMv7 and ACLE 1.0. Testing shows ARMv7 is really ARMv7a under most toolchains.
-#if !defined(CRYPTOPP_BOOL_NEON_INTRINSICS_AVAILABLE) && !defined(CRYPTOPP_DISABLE_ASM)
+#if !defined(CRYPTOPP_BOOL_NEON_AVAILABLE) && !defined(CRYPTOPP_DISABLE_ASM)
 # if defined(__ARM_NEON__) || defined(__ARM_NEON) || defined(_M_ARM)
-#  define CRYPTOPP_BOOL_NEON_INTRINSICS_AVAILABLE 1
+#  define CRYPTOPP_BOOL_NEON_AVAILABLE 1
 # endif
 #endif
 
 // Requires ARMv8 and ACLE 2.0.
 // Microsoft plans to support ARM-64, but its not clear how to detect it.
 // TODO: Add MSC_VER and ARM-64 platform define when available
-#if !defined(CRYPTOPP_BOOL_ARM_CRC32_INTRINSICS_AVAILABLE) && !defined(CRYPTOPP_DISABLE_ASM)
+#if !defined(CRYPTOPP_BOOL_ARM_CRC32_AVAILABLE) && !defined(CRYPTOPP_DISABLE_ASM)
 # if defined(__ARM_FEATURE_CRC32) || defined(_M_ARM64)
-#  define CRYPTOPP_BOOL_ARM_CRC32_INTRINSICS_AVAILABLE 1
+#  define CRYPTOPP_BOOL_ARM_CRC32_AVAILABLE 1
 # endif
 #endif
 
 // Requires ARMv8 and ACLE 2.0.
 // Microsoft plans to support ARM-64, but its not clear how to detect it.
 // TODO: Add MSC_VER and ARM-64 platform define when available
-#if !defined(CRYPTOPP_BOOL_ARM_CRYPTO_INTRINSICS_AVAILABLE) && !defined(CRYPTOPP_DISABLE_ASM)
+#if !defined(CRYPTOPP_BOOL_ARM_CRYPTO_AVAILABLE) && !defined(CRYPTOPP_DISABLE_ASM)
 # if defined(__ARM_FEATURE_CRYPTO) || defined(_M_ARM64)
-#  define CRYPTOPP_BOOL_ARM_CRYPTO_INTRINSICS_AVAILABLE 1
+#  define CRYPTOPP_BOOL_ARM_CRYPTO_AVAILABLE 1
 # endif
 #endif
 
-#if CRYPTOPP_BOOL_SSE2_INTRINSICS_AVAILABLE || CRYPTOPP_BOOL_SSE2_ASM_AVAILABLE || CRYPTOPP_BOOL_NEON_INTRINSICS_AVAILABLE || defined(CRYPTOPP_X64_MASM_AVAILABLE)
+#if CRYPTOPP_BOOL_SSE2_AVAILABLE || CRYPTOPP_BOOL_NEON_AVAILABLE || defined(CRYPTOPP_X64_MASM_AVAILABLE)
 	#define CRYPTOPP_BOOL_ALIGN16 1
 #else
 	#define CRYPTOPP_BOOL_ALIGN16 0
