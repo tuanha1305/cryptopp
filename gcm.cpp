@@ -17,12 +17,14 @@
 # undef CRYPTOPP_X86_ASM_AVAILABLE
 # undef CRYPTOPP_X32_ASM_AVAILABLE
 # undef CRYPTOPP_X64_ASM_AVAILABLE
-# undef CRYPTOPP_BOOL_SSE2_AVAILABLE
-# undef CRYPTOPP_BOOL_SSSE3_AVAILABLE
-# undef CRYPTOPP_BOOL_AESNI_AVAILABLE
-# define CRYPTOPP_BOOL_SSE2_AVAILABLE 0
-# define CRYPTOPP_BOOL_SSSE3_AVAILABLE 0
-# define CRYPTOPP_BOOL_AESNI_AVAILABLE 0
+# undef CRYPTOPP_BOOL_SSE2_ASM_AVAILABLE
+# undef CRYPTOPP_BOOL_SSSE3_ASM_AVAILABLE
+# undef CRYPTOPP_BOOL_SSE2_INTRINSICS_AVAILABLE
+# undef CRYPTOPP_BOOL_AESNI_INTRINSICS_AVAILABLE
+# define CRYPTOPP_BOOL_SSE2_ASM_AVAILABLE 0
+# define CRYPTOPP_BOOL_SSSE3_ASM_AVAILABLE 0
+# define CRYPTOPP_BOOL_SSE2_INTRINSICS_AVAILABLE 0
+# define CRYPTOPP_BOOL_AESNI_INTRINSICS_AVAILABLE 0
 #endif
 
 #include "gcm.h"
@@ -78,13 +80,17 @@ __m128i _mm_clmulepi64_si128(const __m128i &a, const __m128i &b, int i)
 }
 #endif
 
-#if CRYPTOPP_BOOL_SSE2_AVAILABLE
+#if CRYPTOPP_BOOL_SSE2_INTRINSICS_AVAILABLE || CRYPTOPP_BOOL_SSE2_ASM_AVAILABLE
 inline static void SSE2_Xor16(byte *a, const byte *b, const byte *c)
 {
+#if CRYPTOPP_BOOL_SSE2_INTRINSICS_AVAILABLE
 	assert(IsAlignedOn(a,GetAlignmentOf<__m128i>()));
 	assert(IsAlignedOn(b,GetAlignmentOf<__m128i>()));
 	assert(IsAlignedOn(c,GetAlignmentOf<__m128i>()));
 	*(__m128i *)(void *)a = _mm_xor_si128(*(__m128i *)(void *)b, *(__m128i *)(void *)c);
+#else
+	asm ("movdqa %1, %%xmm0; pxor %2, %%xmm0; movdqa %%xmm0, %0;" : "=m" (a[0]) : "m"(b[0]), "m"(c[0]));
+#endif
 }
 #endif
 
@@ -97,7 +103,7 @@ inline static void Xor16(byte *a, const byte *b, const byte *c)
 	((word64 *)(void *)a)[1] = ((word64 *)(void *)b)[1] ^ ((word64 *)(void *)c)[1];
 }
 
-#if CRYPTOPP_BOOL_AESNI_AVAILABLE
+#if CRYPTOPP_BOOL_AESNI_INTRINSICS_AVAILABLE
 CRYPTOPP_ALIGN_DATA(16)
 static const word64 s_clmulConstants64[] = {
 	W64LIT(0xe100000000000000), W64LIT(0xc200000000000000),
@@ -158,7 +164,7 @@ void GCM_Base::SetKeyWithoutResync(const byte *userKey, size_t keylength, const 
 
 	int tableSize, i, j, k;
 
-#if CRYPTOPP_BOOL_AESNI_AVAILABLE
+#if CRYPTOPP_BOOL_AESNI_INTRINSICS_AVAILABLE
 	if (HasCLMUL())
 	{
 		// Avoid "parameter not used" error and suppress Coverity finding
@@ -185,7 +191,7 @@ void GCM_Base::SetKeyWithoutResync(const byte *userKey, size_t keylength, const 
 	memset(hashKey, 0, REQUIRED_BLOCKSIZE);
 	blockCipher.ProcessBlock(hashKey);
 
-#if CRYPTOPP_BOOL_AESNI_AVAILABLE
+#if CRYPTOPP_BOOL_AESNI_INTRINSICS_AVAILABLE
 	if (HasCLMUL())
 	{
 		const __m128i r = s_clmulConstants[0];
@@ -225,7 +231,7 @@ void GCM_Base::SetKeyWithoutResync(const byte *userKey, size_t keylength, const 
 		for (i=0; i<16; i++)
 		{
 			memset(table+i*256*16, 0, 16);
-#if CRYPTOPP_BOOL_SSE2_AVAILABLE
+#if CRYPTOPP_BOOL_SSE2_INTRINSICS_AVAILABLE || CRYPTOPP_BOOL_SSE2_ASM_AVAILABLE
 			if (HasSSE2())
 				for (j=2; j<=0x80; j*=2)
 					for (k=1; k<j; k++)
@@ -271,7 +277,7 @@ void GCM_Base::SetKeyWithoutResync(const byte *userKey, size_t keylength, const 
 		{
 			memset(table+i*256, 0, 16);
 			memset(table+1024+i*256, 0, 16);
-#if CRYPTOPP_BOOL_SSE2_AVAILABLE
+#if CRYPTOPP_BOOL_SSE2_INTRINSICS_AVAILABLE || CRYPTOPP_BOOL_SSE2_ASM_AVAILABLE
 			if (HasSSE2())
 				for (j=2; j<=8; j*=2)
 					for (k=1; k<j; k++)
@@ -293,7 +299,7 @@ void GCM_Base::SetKeyWithoutResync(const byte *userKey, size_t keylength, const 
 
 inline void GCM_Base::ReverseHashBufferIfNeeded()
 {
-#if CRYPTOPP_BOOL_AESNI_AVAILABLE
+#if CRYPTOPP_BOOL_AESNI_INTRINSICS_AVAILABLE
 	if (HasCLMUL())
 	{
 		__m128i &x = *(__m128i *)(void *)HashBuffer();
@@ -350,7 +356,7 @@ void GCM_Base::Resync(const byte *iv, size_t len)
 unsigned int GCM_Base::OptimalDataAlignment() const
 {
 	return
-#if CRYPTOPP_BOOL_SSE2_AVAILABLE || defined(CRYPTOPP_X64_MASM_AVAILABLE)
+#if CRYPTOPP_BOOL_SSE2_ASM_AVAILABLE || defined(CRYPTOPP_X64_MASM_AVAILABLE)
 		HasSSE2() ? 16 :
 #endif
 		GetBlockCipher().OptimalDataAlignment();
@@ -360,7 +366,7 @@ unsigned int GCM_Base::OptimalDataAlignment() const
 # pragma warning(disable: 4731)	// frame pointer register 'ebp' modified by inline assembly code
 #endif
 
-#endif	// CRYPTOPP_GENERATE_X64_MASM
+#endif	// #ifndef CRYPTOPP_GENERATE_X64_MASM
 
 #ifdef CRYPTOPP_X64_MASM_AVAILABLE
 extern "C" {
@@ -373,7 +379,7 @@ void GCM_AuthenticateBlocks_64K(const byte *data, size_t blocks, word64 *hashBuf
 
 size_t GCM_Base::AuthenticateBlocks(const byte *data, size_t len)
 {
-#if CRYPTOPP_BOOL_AESNI_AVAILABLE
+#if CRYPTOPP_BOOL_AESNI_INTRINSICS_AVAILABLE
 	if (HasCLMUL())
 	{
 		const __m128i *table = (const __m128i *)(const void *)MulTable();
@@ -445,7 +451,7 @@ size_t GCM_Base::AuthenticateBlocks(const byte *data, size_t len)
 	assert(IsAlignedOn(hashBuffer,GetAlignmentOf<word64>()));
 
 	switch (2*(m_buffer.size()>=64*1024)
-#if CRYPTOPP_BOOL_SSE2_AVAILABLE || defined(CRYPTOPP_X64_MASM_AVAILABLE)
+#if CRYPTOPP_BOOL_SSE2_ASM_AVAILABLE || defined(CRYPTOPP_X64_MASM_AVAILABLE)
 		+ HasSSE2()
 #endif
 		)
@@ -580,7 +586,7 @@ size_t GCM_Base::AuthenticateBlocks(const byte *data, size_t len)
 		hashBuffer[0] = x0; hashBuffer[1] = x1;
 		return len;
 		}
-#endif	// CRYPTOPP_GENERATE_X64_MASM
+#endif	// #ifndef CRYPTOPP_GENERATE_X64_MASM
 
 #ifdef CRYPTOPP_X64_MASM_AVAILABLE
 	case 1:		// SSE2 and 2K tables
@@ -591,7 +597,7 @@ size_t GCM_Base::AuthenticateBlocks(const byte *data, size_t len)
 		return len % 16;
 #endif
 
-#if CRYPTOPP_BOOL_SSE2_AVAILABLE
+#if CRYPTOPP_BOOL_SSE2_ASM_AVAILABLE
 	case 1:		// SSE2 and 2K tables
 		{
 		#ifdef __GNUC__
@@ -881,5 +887,5 @@ void GCM_Base::AuthenticateLastFooterBlock(byte *mac, size_t macSize)
 
 NAMESPACE_END
 
-#endif	// CRYPTOPP_GENERATE_X64_MASM
+#endif	// #ifndef CRYPTOPP_GENERATE_X64_MASM
 #endif

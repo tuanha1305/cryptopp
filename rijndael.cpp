@@ -78,7 +78,7 @@ being unloaded from L1 cache, until that round is finished.
 NAMESPACE_BEGIN(CryptoPP)
 
 // Hack for http://github.com/weidai11/cryptopp/issues/42 and http://github.com/weidai11/cryptopp/issues/132
-#if (CRYPTOPP_BOOL_SSE2_AVAILABLE || defined(CRYPTOPP_X64_MASM_AVAILABLE)) && !defined(CRYPTOPP_ALLOW_UNALIGNED_DATA_ACCESS)
+#if (CRYPTOPP_BOOL_SSE2_ASM_AVAILABLE || defined(CRYPTOPP_X64_MASM_AVAILABLE)) && !defined(CRYPTOPP_ALLOW_UNALIGNED_DATA_ACCESS)
 # define CRYPTOPP_ALLOW_RIJNDAEL_UNALIGNED_DATA_ACCESS 1
 #endif
 
@@ -90,7 +90,7 @@ NAMESPACE_BEGIN(CryptoPP)
 #endif
 
 #if defined(CRYPTOPP_ALLOW_UNALIGNED_DATA_ACCESS) || defined(CRYPTOPP_ALLOW_RIJNDAEL_UNALIGNED_DATA_ACCESS)
-# if (CRYPTOPP_BOOL_SSE2_AVAILABLE || defined(CRYPTOPP_X64_MASM_AVAILABLE)) && !defined(CRYPTOPP_DISABLE_RIJNDAEL_ASM)
+# if (CRYPTOPP_BOOL_SSE2_ASM_AVAILABLE || defined(CRYPTOPP_X64_MASM_AVAILABLE)) && !defined(CRYPTOPP_DISABLE_RIJNDAEL_ASM)
 namespace rdtable {CRYPTOPP_ALIGN_DATA(16) word64 Te[256+2];}
 using namespace rdtable;
 # else
@@ -189,7 +189,7 @@ void Rijndael::Base::FillEncTable()
 		}
 #endif
 	}
-#if (CRYPTOPP_BOOL_SSE2_AVAILABLE || defined(CRYPTOPP_X64_MASM_AVAILABLE)) && !defined(CRYPTOPP_DISABLE_RIJNDAEL_ASM)
+#if (CRYPTOPP_BOOL_SSE2_ASM_AVAILABLE || defined(CRYPTOPP_X64_MASM_AVAILABLE)) && !defined(CRYPTOPP_DISABLE_RIJNDAEL_ASM)
 	Te[256] = Te[257] = 0;
 #endif
 	s_TeFilled = true;
@@ -224,7 +224,7 @@ void Rijndael::Base::UncheckedSetKey(const byte *userKey, unsigned int keylen, c
 
 	word32 *rk = m_key;
 
-#if (CRYPTOPP_BOOL_AESNI_AVAILABLE && CRYPTOPP_BOOL_SSE4_AVAILABLE && (!defined(_MSC_VER) || _MSC_VER >= 1600 || CRYPTOPP_BOOL_X86 || CRYPTOPP_BOOL_X32))
+#if (CRYPTOPP_BOOL_AESNI_INTRINSICS_AVAILABLE && CRYPTOPP_BOOL_SSE4_INTRINSICS_AVAILABLE && (!defined(_MSC_VER) || _MSC_VER >= 1600 || CRYPTOPP_BOOL_X86 || CRYPTOPP_BOOL_X32))
 	// MSVC 2008 SP1 generates bad code for _mm_extract_epi32() when compiling for X64
 	if (HasAESNI() && HasSSE4())
 	{
@@ -365,7 +365,7 @@ void Rijndael::Base::UncheckedSetKey(const byte *userKey, unsigned int keylen, c
 		temp = ConditionalByteReverse(BIG_ENDIAN_ORDER, rk[3]); rk[3] = ConditionalByteReverse(BIG_ENDIAN_ORDER, rk[4*m_rounds+3]); rk[4*m_rounds+3] = temp;
 	}
 
-#if CRYPTOPP_BOOL_AESNI_AVAILABLE
+#if CRYPTOPP_BOOL_AESNI_INTRINSICS_AVAILABLE
 	if (HasAESNI())
 		ConditionalByteReverse(BIG_ENDIAN_ORDER, rk+4, rk+4, (m_rounds-1)*16);
 #endif
@@ -373,9 +373,15 @@ void Rijndael::Base::UncheckedSetKey(const byte *userKey, unsigned int keylen, c
 
 void Rijndael::Enc::ProcessAndXorBlock(const byte *inBlock, const byte *xorBlock, byte *outBlock) const
 {
-#if (defined(CRYPTOPP_X64_MASM_AVAILABLE) || CRYPTOPP_BOOL_AESNI_AVAILABLE) && !defined(CRYPTOPP_DISABLE_RIJNDAEL_ASM)
+#if CRYPTOPP_BOOL_SSE2_ASM_AVAILABLE || defined(CRYPTOPP_X64_MASM_AVAILABLE) || CRYPTOPP_BOOL_AESNI_INTRINSICS_AVAILABLE
+#if (CRYPTOPP_BOOL_SSE2_ASM_AVAILABLE || defined(CRYPTOPP_X64_MASM_AVAILABLE)) && !defined(CRYPTOPP_DISABLE_RIJNDAEL_ASM)
+	if (HasSSE2())
+#else
 	if (HasAESNI())
+#endif
+	{
 		return (void)Rijndael::Enc::AdvancedProcessBlocks(inBlock, xorBlock, outBlock, 16, 0);
+	}
 #endif
 
 	typedef BlockGetAndPut<word32, NativeByteOrder> Block;
@@ -448,9 +454,12 @@ void Rijndael::Enc::ProcessAndXorBlock(const byte *inBlock, const byte *xorBlock
 
 void Rijndael::Dec::ProcessAndXorBlock(const byte *inBlock, const byte *xorBlock, byte *outBlock) const
 {
-#if CRYPTOPP_BOOL_AESNI_AVAILABLE
+#if CRYPTOPP_BOOL_AESNI_INTRINSICS_AVAILABLE
 	if (HasAESNI())
-		return (void)Rijndael::Dec::AdvancedProcessBlocks(inBlock, xorBlock, outBlock, 16, 0);
+	{
+		Rijndael::Dec::AdvancedProcessBlocks(inBlock, xorBlock, outBlock, 16, 0);
+		return;
+	}
 #endif
 
 	typedef BlockGetAndPut<word32, NativeByteOrder> Block;
@@ -540,7 +549,7 @@ void Rijndael::Dec::ProcessAndXorBlock(const byte *inBlock, const byte *xorBlock
 
 #endif // #ifndef CRYPTOPP_GENERATE_X64_MASM
 
-#if CRYPTOPP_BOOL_SSE2_AVAILABLE && !defined(CRYPTOPP_DISABLE_RIJNDAEL_ASM)
+#if CRYPTOPP_BOOL_SSE2_ASM_AVAILABLE && !defined(CRYPTOPP_DISABLE_RIJNDAEL_ASM)
 
 CRYPTOPP_NAKED void CRYPTOPP_FASTCALL Rijndael_Enc_AdvancedProcessBlocks(void *locals, const word32 *k)
 {
@@ -716,53 +725,53 @@ CRYPTOPP_NAKED void CRYPTOPP_FASTCALL Rijndael_Enc_AdvancedProcessBlocks(void *l
 	AS2(	psrldq	xmm2, 4)
 	AS2(	movd	edi, xmm2)
 	AS2(	psrldq	xmm2, 4)
-	MXOR(		1, al, 0)		// 0
-	XOR(		edx, ah, 1)		// 1
+		MXOR(		1, al, 0)		// 0
+		XOR(		edx, ah, 1)		// 1
 	AS2(	shr		eax, 16)
-	XOR(		ecx, al, 2)		// 2
-	XOR(		ebx, ah, 3)		// 3
+		XOR(		ecx, al, 2)		// 2
+		XOR(		ebx, ah, 3)		// 3
 	AS2(	mov		eax, edi)
 	AS2(	movd	edi, xmm2)
 	AS2(	psrldq	xmm2, 4)
-	XOR(		ebx, al, 0)		// 4
-	MXOR(		1, ah, 1)		// 5
+		XOR(		ebx, al, 0)		// 4
+		MXOR(		1, ah, 1)		// 5
 	AS2(	shr		eax, 16)
-	XOR(		edx, al, 2)		// 6
-	XOR(		ecx, ah, 3)		// 7
+		XOR(		edx, al, 2)		// 6
+		XOR(		ecx, ah, 3)		// 7
 	AS2(	mov		eax, edi)
 	AS2(	movd	edi, xmm2)
-	XOR(		ecx, al, 0)		// 8
-	XOR(		ebx, ah, 1)		// 9
+		XOR(		ecx, al, 0)		// 8
+		XOR(		ebx, ah, 1)		// 9
 	AS2(	shr		eax, 16)
-	MXOR(		1, al, 2)		// 10
-	XOR(		edx, ah, 3)		// 11
+		MXOR(		1, al, 2)		// 10
+		XOR(		edx, ah, 3)		// 11
 	AS2(	mov		eax, edi)
-	XOR(		edx, al, 0)		// 12
-	XOR(		ecx, ah, 1)		// 13
+		XOR(		edx, al, 0)		// 12
+		XOR(		ecx, ah, 1)		// 13
 	AS2(	shr		eax, 16)
-	XOR(		ebx, al, 2)		// 14
+		XOR(		ebx, al, 2)		// 14
 	AS2(	psrldq	xmm2, 3)
 
 	// partial second round, in: ebx(4,5,6,7), ecx(8,9,10,11), edx(12,13,14,15), out: eax, ebx, edi, mm0
 	AS2(	mov		eax, [L_KEY12+0*4])
 	AS2(	mov		edi, [L_KEY12+2*4])
 	AS2(	MOVD	MM(0), [L_KEY12+3*4])
-	MXOR(	0, cl, 3)	/* 11 */
-	XOR(	edi, bl, 3)	/* 7 */
-	MXOR(	0, bh, 2)	/* 6 */
+		MXOR(	0, cl, 3)	/* 11 */
+		XOR(	edi, bl, 3)	/* 7 */
+		MXOR(	0, bh, 2)	/* 6 */
 	AS2(	shr ebx, 16)	/* 4,5 */
-	XOR(	eax, bl, 1)	/* 5 */
-	MOV(	ebx, bh, 0)	/* 4 */
+		XOR(	eax, bl, 1)	/* 5 */
+		MOV(	ebx, bh, 0)	/* 4 */
 	AS2(	xor		ebx, [L_KEY12+1*4])
-	XOR(	eax, ch, 2)	/* 10 */
+		XOR(	eax, ch, 2)	/* 10 */
 	AS2(	shr ecx, 16)	/* 8,9 */
-	XOR(	eax, dl, 3)	/* 15 */
-	XOR(	ebx, dh, 2)	/* 14 */
+		XOR(	eax, dl, 3)	/* 15 */
+		XOR(	ebx, dh, 2)	/* 14 */
 	AS2(	shr edx, 16)	/* 12,13 */
-	XOR(	edi, ch, 0)	/* 8 */
-	XOR(	ebx, cl, 1)	/* 9 */
-	XOR(	edi, dl, 1)	/* 13 */
-	MXOR(	0, dh, 0)	/* 12 */
+		XOR(	edi, ch, 0)	/* 8 */
+		XOR(	ebx, cl, 1)	/* 9 */
+		XOR(	edi, dl, 1)	/* 13 */
+		MXOR(	0, dh, 0)	/* 12 */
 
 	AS2(	movd	ecx, xmm2)
 	AS2(	MOVD	edx, MM(1))
@@ -792,32 +801,32 @@ CRYPTOPP_NAKED void CRYPTOPP_FASTCALL Rijndael_Enc_AdvancedProcessBlocks(void *l
 	AS2(	psrldq	xmm2, 4)
 	AS2(	movd	edi, xmm2)
 	AS2(	psrldq	xmm2, 4)
-	MXOR(		1, al, 0)		// 0
-	XOR(		edx, ah, 1)		// 1
+		MXOR(		1, al, 0)		// 0
+		XOR(		edx, ah, 1)		// 1
 	AS2(	shr		eax, 16)
-	XOR(		ecx, al, 2)		// 2
-	XOR(		ebx, ah, 3)		// 3
+		XOR(		ecx, al, 2)		// 2
+		XOR(		ebx, ah, 3)		// 3
 	AS2(	mov		eax, edi)
 	AS2(	movd	edi, xmm2)
 	AS2(	psrldq	xmm2, 4)
-	XOR(		ebx, al, 0)		// 4
-	MXOR(		1, ah, 1)		// 5
+		XOR(		ebx, al, 0)		// 4
+		MXOR(		1, ah, 1)		// 5
 	AS2(	shr		eax, 16)
-	XOR(		edx, al, 2)		// 6
-	XOR(		ecx, ah, 3)		// 7
+		XOR(		edx, al, 2)		// 6
+		XOR(		ecx, ah, 3)		// 7
 	AS2(	mov		eax, edi)
 	AS2(	movd	edi, xmm2)
-	XOR(		ecx, al, 0)		// 8
-	XOR(		ebx, ah, 1)		// 9
+		XOR(		ecx, al, 0)		// 8
+		XOR(		ebx, ah, 1)		// 9
 	AS2(	shr		eax, 16)
-	MXOR(		1, al, 2)		// 10
-	XOR(		edx, ah, 3)		// 11
+		MXOR(		1, al, 2)		// 10
+		XOR(		edx, ah, 3)		// 11
 	AS2(	mov		eax, edi)
-	XOR(		edx, al, 0)		// 12
-	XOR(		ecx, ah, 1)		// 13
+		XOR(		edx, al, 0)		// 12
+		XOR(		ecx, ah, 1)		// 13
 	AS2(	shr		eax, 16)
-	XOR(		ebx, al, 2)		// 14
-	MXOR(		1, ah, 3)		// 15
+		XOR(		ebx, al, 2)		// 14
+		MXOR(		1, ah, 3)		// 15
 	AS2(	MOVD	eax, MM(1))
 
 	AS2(	add		L_REG, [L_KEYS_BEGIN])
@@ -841,12 +850,12 @@ CRYPTOPP_NAKED void CRYPTOPP_FASTCALL Rijndael_Enc_AdvancedProcessBlocks(void *l
 #endif
 	// remaining part of second round, in: edx(previous round),esi(keyed counter byte) eax,ebx,[L_SAVED_X+2*4],[L_SAVED_X+3*4], out: eax,ebx,ecx,edx
 	AS2(	xor		edx, DWORD PTR [AS_REG_7+WORD_REG(cx)*8+3])
-	XOR(		ebx, dl, 3)
-	MOV(		ecx, dh, 2)
+		XOR(		ebx, dl, 3)
+		MOV(		ecx, dh, 2)
 	AS2(	shr		edx, 16)
 	AS2(	xor		ecx, [L_SAVED_X+2*4])
-	XOR(		eax, dh, 0)
-	MOV(		edx, dl, 1)
+		XOR(		eax, dh, 0)
+		MOV(		edx, dl, 1)
 	AS2(	xor		edx, [L_SAVED_X+3*4])
 
 	AS2(	add		L_REG, [L_KEYS_BEGIN])
@@ -858,27 +867,27 @@ CRYPTOPP_NAKED void CRYPTOPP_FASTCALL Rijndael_Enc_AdvancedProcessBlocks(void *l
 // in: eax(0,1,2,3), ebx(4,5,6,7), ecx(8,9,10,11), edx(12,13,14,15)
 // out: eax, ebx, edi, mm0
 #define ROUND()		\
-	MXOR(	0, cl, 3)	/* 11 */\
+		MXOR(	0, cl, 3)	/* 11 */\
 	AS2(	mov	cl, al)		/* 8,9,10,3 */\
-	XOR(	edi, ah, 2)	/* 2 */\
+		XOR(	edi, ah, 2)	/* 2 */\
 	AS2(	shr eax, 16)	/* 0,1 */\
-	XOR(	edi, bl, 3)	/* 7 */\
-	MXOR(	0, bh, 2)	/* 6 */\
+		XOR(	edi, bl, 3)	/* 7 */\
+		MXOR(	0, bh, 2)	/* 6 */\
 	AS2(	shr ebx, 16)	/* 4,5 */\
-	MXOR(	0, al, 1)	/* 1 */\
-	MOV(	eax, ah, 0)	/* 0 */\
-	XOR(	eax, bl, 1)	/* 5 */\
-	MOV(	ebx, bh, 0)	/* 4 */\
-	XOR(	eax, ch, 2)	/* 10 */\
-	XOR(	ebx, cl, 3)	/* 3 */\
+		MXOR(	0, al, 1)	/* 1 */\
+		MOV(	eax, ah, 0)	/* 0 */\
+		XOR(	eax, bl, 1)	/* 5 */\
+		MOV(	ebx, bh, 0)	/* 4 */\
+		XOR(	eax, ch, 2)	/* 10 */\
+		XOR(	ebx, cl, 3)	/* 3 */\
 	AS2(	shr ecx, 16)	/* 8,9 */\
-	XOR(	eax, dl, 3)	/* 15 */\
-	XOR(	ebx, dh, 2)	/* 14 */\
+		XOR(	eax, dl, 3)	/* 15 */\
+		XOR(	ebx, dh, 2)	/* 14 */\
 	AS2(	shr edx, 16)	/* 12,13 */\
-	XOR(	edi, ch, 0)	/* 8 */\
-	XOR(	ebx, cl, 1)	/* 9 */\
-	XOR(	edi, dl, 1)	/* 13 */\
-	MXOR(	0, dh, 0)	/* 12 */\
+		XOR(	edi, ch, 0)	/* 8 */\
+		XOR(	ebx, cl, 1)	/* 9 */\
+		XOR(	edi, dl, 1)	/* 13 */\
+		MXOR(	0, dh, 0)	/* 12 */\
 
 	ASL(2)	// 2-round loop
 	AS2(	MOVD	MM(0), [L_SUBKEYS-4*16+3*4])
@@ -1006,10 +1015,9 @@ CRYPTOPP_NAKED void CRYPTOPP_FASTCALL Rijndael_Enc_AdvancedProcessBlocks(void *l
 	ATT_PREFIX
 	:
 	: "c" (locals), "d" (k), "S" (Te), "D" (g_cacheLineSize)
-	#if CRYPTOPP_BOOL_X86 || CRYPTOPP_BOOL_X32
 	: "memory", "cc", "%eax"
-	#else
-	: "memory", "cc", "%rax", "%rbx", "%r8", "%r9", "%r10", "%r11", "%r12"
+	#if CRYPTOPP_BOOL_X64
+		, "%rbx", "%r8", "%r9", "%r10", "%r11", "%r12"
 	#endif
 	);
 #endif
@@ -1037,7 +1045,7 @@ static inline bool AliasedWithTable(const byte *begin, const byte *end)
 		return (s0 < t1 || s1 <= t1) || (s0 >= t0 || s1 > t0);
 }
 
-#if CRYPTOPP_BOOL_AESNI_AVAILABLE
+#if CRYPTOPP_BOOL_AESNI_INTRINSICS_AVAILABLE
 
 inline void AESNI_Enc_Block(__m128i &block, MAYBE_CONST __m128i *subkeys, unsigned int rounds)
 {
@@ -1217,17 +1225,16 @@ inline size_t AESNI_AdvancedProcessBlocks(F1 func1, F4 func4, MAYBE_CONST __m128
 
 	return length;
 }
-#endif  // CRYPTOPP_BOOL_AESNI_AVAILABLE
+#endif
 
-#if CRYPTOPP_BOOL_X64 || CRYPTOPP_BOOL_X32 || CRYPTOPP_BOOL_X86
 size_t Rijndael::Enc::AdvancedProcessBlocks(const byte *inBlocks, const byte *xorBlocks, byte *outBlocks, size_t length, word32 flags) const
 {
-#if CRYPTOPP_BOOL_AESNI_AVAILABLE
+#if CRYPTOPP_BOOL_AESNI_INTRINSICS_AVAILABLE
 	if (HasAESNI())
 		return AESNI_AdvancedProcessBlocks(AESNI_Enc_Block, AESNI_Enc_4_Blocks, (MAYBE_CONST __m128i *)(const void *)m_key.begin(), m_rounds, inBlocks, xorBlocks, outBlocks, length, flags);
 #endif
 
-#if (CRYPTOPP_BOOL_SSE2_AVAILABLE || defined(CRYPTOPP_X64_MASM_AVAILABLE)) && !defined(CRYPTOPP_DISABLE_RIJNDAEL_ASM)
+#if (CRYPTOPP_BOOL_SSE2_ASM_AVAILABLE || defined(CRYPTOPP_X64_MASM_AVAILABLE)) && !defined(CRYPTOPP_DISABLE_RIJNDAEL_ASM)
 	if (HasSSE2())
 	{
 		if (length < BLOCKSIZE)
@@ -1291,14 +1298,15 @@ size_t Rijndael::Enc::AdvancedProcessBlocks(const byte *inBlocks, const byte *xo
 
 		return length % BLOCKSIZE;
 	}
-#endif  // CRYPTOPP_BOOL_SSE2_AVAILABLE || CRYPTOPP_X64_MASM_AVAILABLE
+#endif
 
 	return BlockTransformation::AdvancedProcessBlocks(inBlocks, xorBlocks, outBlocks, length, flags);
 }
-#endif  // CRYPTOPP_BOOL_X64 || CRYPTOPP_BOOL_X32 || CRYPTOPP_BOOL_X86
+
 #endif
 
-#if CRYPTOPP_BOOL_AESNI_AVAILABLE
+#if CRYPTOPP_BOOL_AESNI_INTRINSICS_AVAILABLE
+
 size_t Rijndael::Dec::AdvancedProcessBlocks(const byte *inBlocks, const byte *xorBlocks, byte *outBlocks, size_t length, word32 flags) const
 {
 	if (HasAESNI())
@@ -1306,7 +1314,8 @@ size_t Rijndael::Dec::AdvancedProcessBlocks(const byte *inBlocks, const byte *xo
 
 	return BlockTransformation::AdvancedProcessBlocks(inBlocks, xorBlocks, outBlocks, length, flags);
 }
-#endif	// CRYPTOPP_BOOL_AESNI_AVAILABLE
+
+#endif	// #if CRYPTOPP_BOOL_AESNI_INTRINSICS_AVAILABLE
 
 NAMESPACE_END
 

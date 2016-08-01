@@ -102,7 +102,7 @@ void SHA256::InitState(HashWordType *state)
 	memcpy(state, s, sizeof(s));
 }
 
-#if CRYPTOPP_BOOL_SSE2_AVAILABLE && !defined(CRYPTOPP_DISABLE_SHA_ASM)
+#if CRYPTOPP_BOOL_SSE2_ASM_AVAILABLE && !defined(CRYPTOPP_DISABLE_SHA_ASM)
 CRYPTOPP_ALIGN_DATA(16) extern const word32 SHA256_K[64] CRYPTOPP_SECTION_ALIGN16 = {
 #else
 extern const word32 SHA256_K[64] = {
@@ -292,7 +292,7 @@ static void CRYPTOPP_FASTCALL X86_SHA256_HashBlocks(word32 *state, const word32 
 	AS2(	mov		DATA_END, WORD_REG(ax))
 	AS2(	mov		K_END, WORD_REG(si))
 
-#if CRYPTOPP_BOOL_SSE2_AVAILABLE
+#if CRYPTOPP_BOOL_SSE2_ASM_AVAILABLE
 #if CRYPTOPP_BOOL_X86 || CRYPTOPP_BOOL_X32
 	AS2(	test	edi, 1)
 	ASJ(	jnz,	2, f)
@@ -303,7 +303,7 @@ static void CRYPTOPP_FASTCALL X86_SHA256_HashBlocks(word32 *state, const word32 
 #endif
 
 #if CRYPTOPP_BOOL_X86 || CRYPTOPP_BOOL_X32
-#if CRYPTOPP_BOOL_SSE2_AVAILABLE
+#if CRYPTOPP_BOOL_SSE2_ASM_AVAILABLE
 	ASJ(	jmp,	0, f)
 #endif
 	ASL(2)	// non-SSE2
@@ -317,7 +317,7 @@ INTEL_NOPREFIX
 	ASJ(	jmp,	3, f)
 #endif
 
-#if CRYPTOPP_BOOL_SSE2_AVAILABLE
+#if CRYPTOPP_BOOL_SSE2_ASM_AVAILABLE
 	ASL(0)
 	AS2(	movdqa	E(0), xmm1)
 	AS2(	movdqa	A(0), xmm0)
@@ -382,7 +382,7 @@ INTEL_NOPREFIX
 	AS2(	mov		AS_REG_7, STATE_SAVE)
 	AS2(	mov		DATA_SAVE, WORD_REG(dx))
 
-#if CRYPTOPP_BOOL_SSE2_AVAILABLE
+#if CRYPTOPP_BOOL_SSE2_ASM_AVAILABLE
 #if CRYPTOPP_BOOL_X86 || CRYPTOPP_BOOL_X32
 	AS2(	test	DWORD PTR K_END, 1)
 	ASJ(	jz,		4, f)
@@ -400,7 +400,7 @@ INTEL_NOPREFIX
 #endif
 
 #if CRYPTOPP_BOOL_X86 || CRYPTOPP_BOOL_X32
-#if CRYPTOPP_BOOL_SSE2_AVAILABLE
+#if CRYPTOPP_BOOL_SSE2_ASM_AVAILABLE
 	ASJ(	jmp,	5, f)
 	ASL(4)	// non-SSE2
 #endif
@@ -421,7 +421,7 @@ INTEL_NOPREFIX
 	AS2(	mov		ecx, AS_REG_7d)
 	AS2(	cmp		WORD_REG(dx), DATA_END)
 	ASJ(	jb,		2, b)
-#if CRYPTOPP_BOOL_SSE2_AVAILABLE
+#if CRYPTOPP_BOOL_SSE2_ASM_AVAILABLE
 	ASL(5)
 #endif
 #endif
@@ -640,7 +640,7 @@ void SHA512::InitState(HashWordType *state)
 	memcpy(state, s, sizeof(s));
 }
 
-#if CRYPTOPP_BOOL_SSE2_AVAILABLE && (CRYPTOPP_BOOL_X86 || CRYPTOPP_BOOL_X32)
+#if CRYPTOPP_BOOL_SSE2_ASM_AVAILABLE && (CRYPTOPP_BOOL_X86 || CRYPTOPP_BOOL_X32)
 CRYPTOPP_ALIGN_DATA(16) static const word64 SHA512_K[80] CRYPTOPP_SECTION_ALIGN16 = {
 #else
 static const word64 SHA512_K[80] = {
@@ -687,7 +687,7 @@ static const word64 SHA512_K[80] = {
 	W64LIT(0x5fcb6fab3ad6faec), W64LIT(0x6c44198c4a475817)
 };
 
-#if CRYPTOPP_BOOL_SSE2_AVAILABLE && (CRYPTOPP_BOOL_X86 || CRYPTOPP_BOOL_X32)
+#if CRYPTOPP_BOOL_SSE2_ASM_AVAILABLE && (CRYPTOPP_BOOL_X86 || CRYPTOPP_BOOL_X32)
 // put assembly version in separate function, otherwise MSVC 2005 SP1 doesn't generate correct code for the non-assembly version
 CRYPTOPP_NAKED static void CRYPTOPP_FASTCALL SHA512_SSE2_Transform(word64 *state, const word64 *data)
 {
@@ -882,11 +882,11 @@ CRYPTOPP_NAKED static void CRYPTOPP_FASTCALL SHA512_SSE2_Transform(word64 *state
 	AS1(	ret)
 #endif
 }
-#endif	// #if CRYPTOPP_BOOL_SSE2_AVAILABLE
+#endif	// #if CRYPTOPP_BOOL_SSE2_ASM_AVAILABLE
 
 void SHA512::Transform(word64 *state, const word64 *data)
 {
-#if CRYPTOPP_BOOL_SSE2_AVAILABLE && (CRYPTOPP_BOOL_X86 || CRYPTOPP_BOOL_X32)
+#if CRYPTOPP_BOOL_SSE2_ASM_AVAILABLE && (CRYPTOPP_BOOL_X86 || CRYPTOPP_BOOL_X32)
 	if (HasSSE2())
 	{
 		SHA512_SSE2_Transform(state, data);

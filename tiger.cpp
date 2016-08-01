@@ -34,7 +34,7 @@ void Tiger::TruncatedFinal(byte *hash, size_t size)
 
 void Tiger::Transform (word64 *digest, const word64 *X)
 {
-#if CRYPTOPP_BOOL_SSE2_AVAILABLE && (CRYPTOPP_BOOL_X86 || CRYPTOPP_BOOL_X32)
+#if CRYPTOPP_BOOL_SSE2_ASM_AVAILABLE && (CRYPTOPP_BOOL_X86 || CRYPTOPP_BOOL_X32)
 	if (HasSSE2())
 	{
 #ifdef __GNUC__
