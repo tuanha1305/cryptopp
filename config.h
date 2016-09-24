@@ -6,6 +6,10 @@
 #ifndef CRYPTOPP_CONFIG_H
 #define CRYPTOPP_CONFIG_H
 
+#include <SDKDDKVer.h>
+#include <winapifamily.h>
+
+
 // ***************** Important Settings ********************
 
 // define this if running on a big-endian CPU
