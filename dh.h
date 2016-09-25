@@ -10,6 +10,11 @@
 #include "gfpcrypt.h"
 #include "algebra.h"
 
+#ifndef CRYPTOPP_MSC_VERSION
+# pragma GCC diagnostic push
+# pragma GCC diagnostic ignored "-Wdocumentation"
+#endif //ndef CRYPTOPP_MSC_VERSION
+
 NAMESPACE_BEGIN(CryptoPP)
 
 //! \class DH_Domain
@@ -172,5 +177,9 @@ CRYPTOPP_DLL_TEMPLATE_CLASS DH_Domain<DL_GroupParameters_GFP_DefaultSafePrime>;
 typedef DH_Domain<DL_GroupParameters_GFP_DefaultSafePrime> DH;
 
 NAMESPACE_END
+
+#ifndef CRYPTOPP_MSC_VERSION
+# pragma GCC diagnostic pop
+#endif //ndef CRYPTOPP_MSC_VERSION
 
 #endif

@@ -16,6 +16,11 @@
 #include "emsa2.h"
 #include "asn.h"
 
+#ifndef CRYPTOPP_MSC_VERSION
+# pragma GCC diagnostic push
+# pragma GCC diagnostic ignored "-Wmultiple-move-vbase"
+#endif //ndef CRYPTOPP_MSC_VERSION
+
 NAMESPACE_BEGIN(CryptoPP)
 
 //! \class RSAFunction
@@ -246,5 +251,9 @@ namespace Weak {
 #endif // CRYPTOPP_DOXYGEN_PROCESSING
 
 NAMESPACE_END
+
+#ifndef CRYPTOPP_MSC_VERSION
+# pragma GCC diagnostic pop
+#endif //ndef CRYPTOPP_MSC_VERSION
 
 #endif

@@ -8,6 +8,11 @@
 
 #include "cryptlib.h"
 
+#ifndef CRYPTOPP_MSC_VERSION
+# pragma GCC diagnostic push
+# pragma GCC diagnostic ignored "-Wdocumentation"
+#endif //ndef CRYPTOPP_MSC_VERSION
+
 NAMESPACE_BEGIN(CryptoPP)
 
 DOCUMENTED_NAMESPACE_BEGIN(Name)
@@ -89,5 +94,9 @@ CRYPTOPP_DEFINE_NAME_STRING(TreeMode)			//< byte
 DOCUMENTED_NAMESPACE_END
 
 NAMESPACE_END
+
+#ifndef CRYPTOPP_MSC_VERSION
+# pragma GCC diagnostic pop
+#endif //ndef CRYPTOPP_MSC_VERSION
 
 #endif

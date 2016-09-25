@@ -39,6 +39,10 @@
 #if CRYPTOPP_MSC_VERSION
 # pragma warning(push)
 # pragma warning(disable: 4702)
+#else
+# pragma GCC diagnostic push
+# pragma GCC diagnostic ignored "-Wmultiple-move-vbase"
+# pragma GCC diagnostic ignored "-Wdocumentation"
 #endif
 
 #include "cryptlib.h"
@@ -2242,6 +2246,8 @@ NAMESPACE_END
 
 #if CRYPTOPP_MSC_VERSION
 # pragma warning(pop)
+#else
+# pragma GCC diagnostic pop
 #endif
 
 #endif

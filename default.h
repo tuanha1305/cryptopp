@@ -13,6 +13,11 @@
 #include "filters.h"
 #include "smartptr.h"
 
+#ifndef CRYPTOPP_MSC_VERSION
+# pragma GCC diagnostic push
+# pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+#endif //ndef CRYPTOPP_MSC_VERSION
+
 NAMESPACE_BEGIN(CryptoPP)
 
 //! \brief Default block cipher for DefaultEncryptor, DefaultDecryptor, DefaultEncryptorWithMAC and DefaultDecryptorWithMAC
@@ -173,5 +178,9 @@ private:
 } CRYPTOPP_DEPRECATED ("DefaultDecryptorWithMAC will be changing in the near future because the algorithms are no longer secure");
 
 NAMESPACE_END
+
+#ifndef CRYPTOPP_MSC_VERSION
+# pragma GCC diagnostic pop
+#endif //ndef CRYPTOPP_MSC_VERSION
 
 #endif

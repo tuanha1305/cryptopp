@@ -6,9 +6,10 @@
 #ifndef CRYPTOPP_CONFIG_H
 #define CRYPTOPP_CONFIG_H
 
+#ifdef _WIN32
 #include <SDKDDKVer.h>
 #include <winapifamily.h>
-
+#endif //_WIN32
 
 // ***************** Important Settings ********************
 

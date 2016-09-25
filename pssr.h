@@ -14,6 +14,11 @@
 #include "sha.h"
 #endif
 
+#ifndef CRYPTOPP_MSC_VERSION
+# pragma GCC diagnostic push
+# pragma GCC diagnostic ignored "-Wdocumentation"
+#endif //ndef CRYPTOPP_MSC_VERSION
+
 NAMESPACE_BEGIN(CryptoPP)
 
 //! \brief PSSR Message Encoding Method interface
@@ -96,5 +101,9 @@ struct PSS : public SignatureStandard
 };
 
 NAMESPACE_END
+
+#ifndef CRYPTOPP_MSC_VERSION
+# pragma GCC diagnostic pop
+#endif //ndef CRYPTOPP_MSC_VERSION
 
 #endif

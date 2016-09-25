@@ -10,6 +10,11 @@
 #include "misc.h"
 #include "integer.h"
 
+#ifndef CRYPTOPP_MSC_VERSION
+# pragma GCC diagnostic push
+# pragma GCC diagnostic ignored "-Wdocumentation"
+#endif //ndef CRYPTOPP_MSC_VERSION
+
 NAMESPACE_BEGIN(CryptoPP)
 
 class Integer;
@@ -445,6 +450,10 @@ protected:
 };
 
 NAMESPACE_END
+
+#ifndef CRYPTOPP_MSC_VERSION
+# pragma GCC diagnostic pop
+#endif //ndef CRYPTOPP_MSC_VERSION
 
 #ifdef CRYPTOPP_MANUALLY_INSTANTIATE_TEMPLATES
 #include "algebra.cpp"

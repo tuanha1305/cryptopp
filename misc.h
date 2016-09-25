@@ -17,6 +17,9 @@
 # if (CRYPTOPP_MSC_VERSION >= 1400)
 #  pragma warning(disable: 6326)
 # endif
+#else
+# pragma GCC diagnostic push
+# pragma GCC diagnostic ignored "-Wdocumentation"
 #endif
 
 #include "cryptlib.h"
@@ -2384,6 +2387,8 @@ NAMESPACE_END
 
 #if CRYPTOPP_MSC_VERSION
 # pragma warning(pop)
+#else
+# pragma GCC diagnostic pop
 #endif
 
 #endif

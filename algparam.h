@@ -15,6 +15,9 @@
 #if (CRYPTOPP_MSC_VERSION >= 1400)
 # pragma warning(push)
 # pragma warning(disable: 6011 28193)
+#else
+# pragma GCC diagnostic push
+# pragma GCC diagnostic ignored "-Wdocumentation"
 #endif
 
 #include "smartptr.h"
@@ -564,6 +567,8 @@ AlgorithmParameters MakeParameters(const char *name, const T &value, bool throwI
 // TODO: fix 6011 when the API/ABI can change
 #if (CRYPTOPP_MSC_VERSION >= 1400)
 # pragma warning(pop)
+#else
+# pragma GCC diagnostic pop
 #endif
 
 NAMESPACE_END

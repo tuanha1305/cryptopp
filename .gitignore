@@ -223,6 +223,7 @@ $RECYCLE.BIN/
 #############
 
 .DS_Store
+*.xcuserdatad/
 
 #############
 ## Python

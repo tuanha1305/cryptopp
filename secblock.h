@@ -16,6 +16,9 @@
 # if (CRYPTOPP_MSC_VERSION >= 1400)
 #  pragma warning(disable: 6386)
 # endif
+#else
+# pragma GCC diagnostic push
+# pragma GCC diagnostic ignored "-Wdocumentation"
 #endif
 
 NAMESPACE_BEGIN(CryptoPP)
@@ -808,6 +811,8 @@ NAMESPACE_END
 
 #if CRYPTOPP_MSC_VERSION
 # pragma warning(pop)
+#else
+# pragma GCC diagnostic pop
 #endif
 
 #endif

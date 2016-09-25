@@ -13,6 +13,11 @@
 #include "argnames.h"
 #include "algparam.h"
 
+#ifndef CRYPTOPP_MSC_VERSION
+# pragma GCC diagnostic push
+# pragma GCC diagnostic ignored "-Wdocumentation"
+#endif //ndef CRYPTOPP_MSC_VERSION
+
 NAMESPACE_BEGIN(CryptoPP)
 
 //! \class CipherModeDocumentation
@@ -481,5 +486,9 @@ typedef CTR_Mode_ExternalCipher::Encryption CounterMode;
 #endif
 
 NAMESPACE_END
+
+#ifndef CRYPTOPP_MSC_VERSION
+# pragma GCC diagnostic pop
+#endif //ndef CRYPTOPP_MSC_VERSION
 
 #endif
