@@ -183,15 +183,92 @@
     </None>
     <None Include="..\..\..\rdrand-masm.cmd" />
     <None Include="..\..\..\rdrand-nasm.sh" />
-    <None Include="..\..\..\rdrand.asm" />
+    <CustomBuild Include="..\..\..\rdrand.asm">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</ExcludedFromBuild>
+      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+      </DeploymentContent>
+      <FileType>Document</FileType>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</ExcludedFromBuild>
+      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+      </DeploymentContent>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|ARM'">true</ExcludedFromBuild>
+      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Debug|ARM'">
+      </DeploymentContent>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|ARM'">true</ExcludedFromBuild>
+      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Release|ARM'">
+      </DeploymentContent>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</ExcludedFromBuild>
+      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+      </DeploymentContent>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</ExcludedFromBuild>
+      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+      </DeploymentContent>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">ml.exe /c /nologo /D_M_X86 /W3 /Cx /Zi /safeseh /Fo"$(IntDir)rdrand-x86.obj" /Zi "%(FullPath)"</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(IntDir)rdrand-x86.obj</Outputs>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">ml.exe /c /nologo /D_M_X86 /W3 /Cx /Zi /safeseh /Fo"$(IntDir)rdrand-x86.obj" /Zi "%(FullPath)"</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(IntDir)rdrand-x86.obj</Outputs>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">ml64.exe /c /nologo /D_M_X64 /W3 /Cx /Zi /Fo"$(IntDir)rdrand-x64.obj" /Zi "%(FullPath)"</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(IntDir)rdrand-x64.obj</Outputs>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">ml64.exe /c /nologo /D_M_X64 /W3 /Cx /Zi /Fo"$(IntDir)rdrand-x64.obj" /Zi "%(FullPath)"</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(IntDir)rdrand-x64.obj</Outputs>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Building and assembling rdrand.asm</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Building and assembling rdrand.asm</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|ARM'">Building and assembling rdrand.asm</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|ARM'">Building and assembling rdrand.asm</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Building and assembling rdrand.asm</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Building and assembling rdrand.asm</Message>
+    </CustomBuild>
     <None Include="..\..\..\rdrand.S" />
     <None Include="..\..\..\setenv-android.sh" />
     <None Include="..\..\..\setenv-embedded.sh" />
     <None Include="..\..\..\setenv-ios.sh" />
     <None Include="..\..\..\vc60.zip" />
-    <None Include="..\..\..\vs2005.zip" />
-    <None Include="..\..\..\x64dll.asm" />
-    <None Include="..\..\..\x64masm.asm" />
+    <None Include="..\..\..\vs2005.zip">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|ARM'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|ARM'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </None>
+    <CustomBuild Include="..\..\..\x64dll.asm">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|ARM'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|ARM'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</ExcludedFromBuild>
+      <FileType>Document</FileType>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">ml64.exe /c /nologo /D_M_X64 /W3 /Fo"$(IntDir)x64dll.obj" /Zi "%(FullPath)"</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(IntDir)x64dll.obj</Outputs>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">ml64.exe /c /nologo /D_M_X64 /W3 /Fo"$(IntDir)x64dll.obj" /Zi "%(FullPath)"</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(IntDir)x64dll.obj</Outputs>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Building and assembling x64dll.asm</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Building and assembling x64dll.asm</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|ARM'">Building and assembling x64dll.asm</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|ARM'">Building and assembling x64dll.asm</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Building and assembling x64dll.asm</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Building and assembling x64dll.asm</Message>
+    </CustomBuild>
+    <CustomBuild Include="..\..\..\x64masm.asm">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <FileType>Document</FileType>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|ARM'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|ARM'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</ExcludedFromBuild>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">ml64.exe /c /nologo /D_M_X64 /W3 /Fo"$(IntDir)x64masm.obj" /Zi "%(FullPath)"</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(IntDir)x64masm.obj</Outputs>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">ml64.exe /c /nologo /D_M_X64 /W3 /Fo"$(IntDir)x64masm.obj" /Zi "%(FullPath)"</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(IntDir)x64masm.obj</Outputs>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Building and assembling x64masm.asm</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Building and assembling x64masm.asm</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|ARM'">Building and assembling x64masm.asm</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|ARM'">Building and assembling x64masm.asm</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Building and assembling x64masm.asm</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Building and assembling x64masm.asm</Message>
+    </CustomBuild>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\..\3way.cpp" />
