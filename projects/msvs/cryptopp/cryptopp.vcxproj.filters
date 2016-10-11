@@ -1,13 +1,12 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="14.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
     <Filter Include="Resource Files">
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
-      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tga;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <None Include="..\..\..\.gitattributes" />
     <None Include="..\..\..\.gitignore" />
     <None Include="..\..\..\adhoc.cpp.proto" />
     <None Include="..\..\..\bds10.zip" />
@@ -23,11 +22,13 @@
     <None Include="..\..\..\cryptest-ios.sh" />
     <None Include="..\..\..\cryptlib.vcxproj" />
     <None Include="..\..\..\cryptlib.vcxproj.filters" />
+    <None Include="..\..\..\cryptopp.aps" />
     <None Include="..\..\..\cryptopp-config.cmake" />
     <None Include="..\..\..\dlltest.vcxproj" />
     <None Include="..\..\..\Doxyfile" />
     <None Include="..\..\..\GNUmakefile" />
     <None Include="..\..\..\GNUmakefile-cross" />
+    <None Include="..\..\..\rdrand.asm" />
     <None Include="..\..\..\rdrand.S" />
     <None Include="..\..\..\rdrand-masm.cmd" />
     <None Include="..\..\..\rdrand-nasm.sh" />
@@ -36,6 +37,8 @@
     <None Include="..\..\..\setenv-ios.sh" />
     <None Include="..\..\..\vc60.zip" />
     <None Include="..\..\..\vs2005.zip" />
+    <None Include="..\..\..\x64dll.asm" />
+    <None Include="..\..\..\x64masm.asm" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\..\3way.cpp" />
@@ -332,10 +335,5 @@
     <ResourceCompile Include="..\..\..\cryptopp.rc">
       <Filter>Resource Files</Filter>
     </ResourceCompile>
-  </ItemGroup>
-  <ItemGroup>
-    <CustomBuild Include="..\..\..\rdrand.asm" />
-    <CustomBuild Include="..\..\..\x64dll.asm" />
-    <CustomBuild Include="..\..\..\x64masm.asm" />
   </ItemGroup>
 </Project>
