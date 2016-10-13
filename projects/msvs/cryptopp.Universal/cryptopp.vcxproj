@@ -562,6 +562,7 @@
     <ClCompile Include="..\..\..\zlib.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\..\..\..\ortclib-sdk-sergej\ortc\xplatform\cryptopp\AllocatorWithNul.h" />
     <ClInclude Include="..\..\..\3way.h" />
     <ClInclude Include="..\..\..\adler32.h" />
     <ClInclude Include="..\..\..\aes.h" />

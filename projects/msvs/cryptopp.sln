@@ -9,7 +9,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Universal", "Universal", "{
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Win32", "Win32", "{60E58861-CA35-47C6-AA77-9405740AF398}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "cryptopp", "cryptopp\cryptopp.vcxproj", "{09A641EE-E209-4F71-9558-71A21720C800}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "cryptopp", "cryptopp.Win32\cryptopp.vcxproj", "{09A641EE-E209-4F71-9558-71A21720C800}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

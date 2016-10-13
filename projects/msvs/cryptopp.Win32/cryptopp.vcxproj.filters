@@ -28,7 +28,6 @@
     <None Include="..\..\..\Doxyfile" />
     <None Include="..\..\..\GNUmakefile" />
     <None Include="..\..\..\GNUmakefile-cross" />
-    <None Include="..\..\..\rdrand.asm" />
     <None Include="..\..\..\rdrand.S" />
     <None Include="..\..\..\rdrand-masm.cmd" />
     <None Include="..\..\..\rdrand-nasm.sh" />
@@ -37,8 +36,6 @@
     <None Include="..\..\..\setenv-ios.sh" />
     <None Include="..\..\..\vc60.zip" />
     <None Include="..\..\..\vs2005.zip" />
-    <None Include="..\..\..\x64dll.asm" />
-    <None Include="..\..\..\x64masm.asm" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\..\3way.cpp" />
@@ -323,6 +320,7 @@
     <ClInclude Include="..\..\..\zdeflate.h" />
     <ClInclude Include="..\..\..\zinflate.h" />
     <ClInclude Include="..\..\..\zlib.h" />
+    <ClInclude Include="..\..\..\..\ortclib-sdk-sergej\ortc\xplatform\cryptopp\AllocatorWithNul.h" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="..\..\..\CMakeLists.txt" />
@@ -335,5 +333,10 @@
     <ResourceCompile Include="..\..\..\cryptopp.rc">
       <Filter>Resource Files</Filter>
     </ResourceCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <CustomBuild Include="..\..\..\rdrand.asm" />
+    <CustomBuild Include="..\..\..\x64dll.asm" />
+    <CustomBuild Include="..\..\..\x64masm.asm" />
   </ItemGroup>
 </Project>
