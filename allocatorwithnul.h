@@ -64,13 +64,13 @@ public:
 #if CRYPTOPP_BOOL_ALIGN16
 		// TODO: should this need the test 'size*sizeof(T) >= 16'?
 		if (T_Align16 && size*sizeof(T) >= 16) {
-			auto result = (pointer)AlignedAllocate(size*sizeof(T));
+			auto result = (pointer)AlignedAllocate(size*sizeof(T)+sizeof(T));
       memset(result, 0, size*sizeof(T)+sizeof(T));
       return result;
     }
 #endif
 
-		auto result = (pointer)UnalignedAllocate(size*sizeof(T));
+		auto result = (pointer)UnalignedAllocate(size*sizeof(T)+sizeof(T));
     memset(result, 0, size*sizeof(T)+sizeof(T));
     return result;
  }
