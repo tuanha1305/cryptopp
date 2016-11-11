@@ -320,7 +320,7 @@
     <ClInclude Include="..\..\..\zdeflate.h" />
     <ClInclude Include="..\..\..\zinflate.h" />
     <ClInclude Include="..\..\..\zlib.h" />
-    <ClInclude Include="..\..\..\..\ortclib-sdk-sergej\ortc\xplatform\cryptopp\AllocatorWithNul.h" />
+    <ClInclude Include="..\..\..\AllocatorWithNul.h" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="..\..\..\CMakeLists.txt" />

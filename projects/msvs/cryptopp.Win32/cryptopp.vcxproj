@@ -438,12 +438,12 @@
     <ClCompile Include="..\..\..\zlib.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\..\..\ortclib-sdk-sergej\ortc\xplatform\cryptopp\AllocatorWithNul.h" />
     <ClInclude Include="..\..\..\3way.h" />
     <ClInclude Include="..\..\..\adler32.h" />
     <ClInclude Include="..\..\..\aes.h" />
     <ClInclude Include="..\..\..\algebra.h" />
     <ClInclude Include="..\..\..\algparam.h" />
+    <ClInclude Include="..\..\..\AllocatorWithNul.h" />
     <ClInclude Include="..\..\..\arc4.h" />
     <ClInclude Include="..\..\..\argnames.h" />
     <ClInclude Include="..\..\..\asn.h" />
