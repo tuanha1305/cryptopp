@@ -14,6 +14,7 @@
 #define CRYPTOPP_IMPORTS
 #endif
 
+#include "allocatorwithnul.h"
 #include "aes.h"
 #include "cbcmac.h"
 #include "ccm.h"
