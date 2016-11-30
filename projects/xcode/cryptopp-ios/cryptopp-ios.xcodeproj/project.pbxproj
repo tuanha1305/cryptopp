@@ -144,6 +144,7 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		0086666D1DEE783E00CBA4FD /* allocatorwithnul.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = allocatorwithnul.h; path = ../../../allocatorwithnul.h; sourceTree = "<group>"; };
 		009BBA0A1D974F4400B6B633 /* libcryptopp-ios.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libcryptopp-ios.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		009BBA1C1D97501700B6B633 /* 3way.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = 3way.cpp; path = ../../../3way.cpp; sourceTree = "<group>"; };
 		009BBA1D1D97501700B6B633 /* 3way.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = 3way.h; path = ../../../3way.h; sourceTree = "<group>"; };
@@ -587,6 +588,7 @@
 		009BBA011D974F4400B6B633 = {
 			isa = PBXGroup;
 			children = (
+				0086666D1DEE783E00CBA4FD /* allocatorwithnul.h */,
 				009BBA1C1D97501700B6B633 /* 3way.cpp */,
 				009BBA1D1D97501700B6B633 /* 3way.h */,
 				009BBA1E1D97501700B6B633 /* adhoc.cpp.proto */,
@@ -1115,7 +1117,7 @@
 		009BBA021D974F4400B6B633 /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
-				LastUpgradeCheck = 0800;
+				LastUpgradeCheck = 0810;
 				ORGANIZATIONNAME = "Open Peer Foundation";
 				TargetAttributes = {
 					009BBA091D974F4400B6B633 = {
@@ -1298,6 +1300,7 @@
 				CLANG_WARN_INFINITE_RECURSION = YES;
 				CLANG_WARN_INT_CONVERSION = YES;
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
 				CLANG_WARN_SUSPICIOUS_MOVES = YES;
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
@@ -1345,6 +1348,7 @@
 				CLANG_WARN_INFINITE_RECURSION = YES;
 				CLANG_WARN_INT_CONVERSION = YES;
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
 				CLANG_WARN_SUSPICIOUS_MOVES = YES;
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
