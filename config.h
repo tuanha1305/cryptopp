@@ -624,7 +624,9 @@ NAMESPACE_END
 #	define THREAD_TIMER_AVAILABLE
 # elif defined(WINAPI_FAMILY)
 #   if (WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_DESKTOP))
+#if 0
 #	  define THREAD_TIMER_AVAILABLE
+#endif //0
 #  endif
 # endif
 #endif
