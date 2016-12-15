@@ -272,3 +272,10 @@ pip-log.txt
 
 # Dependency file
 *.d
+
+
+#################
+## linux / codelite
+#################
+projects/linux/codelite/cryptopp/*.txt
+projects/linux/codelite/cryptopp/*.mk
