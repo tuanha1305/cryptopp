@@ -9,6 +9,14 @@
 #ifdef _WIN32
 #include <SDKDDKVer.h>
 #include <winapifamily.h>
+
+#ifdef WIN32_RX64
+#define CRYPTOPP_DISABLE_ASM
+#define CRYPTOPP_DISABLE_SHA_ASM
+#define CRYPTOPP_DISABLE_INTEL_ASM 1
+#define CRYPTOPP_DISABLE_RIJNDAEL_ASM
+#endif /* WIN32_RX64 */
+
 #endif //_WIN32
 
 // ***************** Important Settings ********************
