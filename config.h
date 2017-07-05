@@ -9,6 +9,14 @@
 #ifdef _WIN32
 #include <SDKDDKVer.h>
 #include <winapifamily.h>
+
+#ifdef WIN32_RX64
+#define CRYPTOPP_DISABLE_ASM
+#define CRYPTOPP_DISABLE_SHA_ASM
+#define CRYPTOPP_DISABLE_INTEL_ASM 1
+#define CRYPTOPP_DISABLE_RIJNDAEL_ASM
+#endif /* WIN32_RX64 */
+
 #endif //_WIN32
 
 // ***************** Important Settings ********************
@@ -673,7 +681,7 @@ NAMESPACE_END
 #	define NONBLOCKING_RNG_AVAILABLE
 #	define OS_RNG_AVAILABLE
 # elif defined(WINAPI_FAMILY)
-#   if (WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_DESKTOP))
+#   if (WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_DESKTOP)) || defined(WIN32_RX64)
 #	  define HAS_WINTHREADS
 #	  define THREADS_AVAILABLE
 #	  define NONBLOCKING_RNG_AVAILABLE
