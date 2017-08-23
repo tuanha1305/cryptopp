@@ -10,7 +10,9 @@ static_library("cryptopp") {
 
 #  configs += [ ":cryptopp_config" ]
   configs -= [ "//build/config/compiler:no_rtti" ]
-  configs -= [ "//build/config/gcc:no_exceptions" ]
+  if (!is_win) {
+    configs -= [ "//build/config/gcc:no_exceptions" ]
+  }
   configs -= [ "//build/config/compiler:chromium_code" ]
 
   sources = [
