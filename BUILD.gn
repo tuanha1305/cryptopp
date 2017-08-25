@@ -299,6 +299,19 @@ static_library("cryptopp") {
     "zlib.cpp",
   ]
 
+  sources -= [
+    "datatest.cpp",
+    "bench1.cpp",
+    "dlltest.cpp",
+    "validat1.cpp",
+    "fipsalgt.cpp",
+    "bench2.cpp",
+    "validat3.cpp",
+    "regtest.cpp",
+    "fipstest.cpp",
+    "test.cpp",
+    "validat2.cpp",
+  ]
   defines = [
     "_UNICODE",
     "UNICODE",
