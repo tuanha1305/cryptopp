@@ -297,6 +297,7 @@ static_library("cryptopp") {
     "zdeflate.cpp",
     "zinflate.cpp",
     "zlib.cpp",
+    "x64dll.asm",
   ]
 
   sources -= [
