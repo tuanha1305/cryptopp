@@ -297,8 +297,12 @@ static_library("cryptopp") {
     "zdeflate.cpp",
     "zinflate.cpp",
     "zlib.cpp",
-    "x64dll.asm",
   ]
+  
+   if (is_win && current_cpu == "x64")
+   {
+      sources += [ "x64dll.asm", ]
+   }
 
   sources -= [
     "datatest.cpp",
