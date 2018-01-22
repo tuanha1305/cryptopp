@@ -3,12 +3,17 @@
 # found in the LICENSE file.
 
 config("cryptopp_config") {
-#    cflags = [ "/WX-" ]
+# cflags = [ "/WX-" ]
+  cflags = []
+  if (is_win && !is_winuwp)
+  {
+    cflags += ["/EHsc"]
+  }
 }
 
 static_library("cryptopp") {
 
-#  configs += [ ":cryptopp_config" ]
+  configs += [ ":cryptopp_config" ]
   configs -= [ "//build/config/compiler:no_rtti" ]
   if (!is_win) {
     configs -= [ "//build/config/gcc:no_exceptions" ]
