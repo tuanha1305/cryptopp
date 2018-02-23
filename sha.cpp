@@ -808,11 +808,23 @@ CRYPTOPP_NAKED static void CRYPTOPP_FASTCALL SHA512_SSE2_Transform(word64 *state
 	AS1(	inc		eax)
 	AS2(	sub		edi, 8)
 	AS2(	test	eax, 7)
+
+#ifdef __GNUC__
+	ATT_NOPREFIX
+#endif
 	ASJ(	jnz,	0, b)
+#ifdef __GNUC__
+	INTEL_NOPREFIX
+#endif
 	AS2(	add		edi, 8*8)
 	AS2(	cmp		eax, 16)
+#ifdef __GNUC__    
+	ATT_NOPREFIX
+#endif
 	ASJ(	jne,	0, b)
-
+#ifdef __GNUC__
+	INTEL_NOPREFIX
+#endif
 	// rest of the rounds
 	AS2(	movdqu	xmm0, [esi+(16-2)*8])
 	ASL(1)
@@ -842,7 +854,13 @@ CRYPTOPP_NAKED static void CRYPTOPP_FASTCALL SHA512_SSE2_Transform(word64 *state
 	AS2(	add		eax, 2)
 	AS2(	sub		edi, 8)
 	AS2(	test	eax, 7)
+#ifdef __GNUC__
+	ATT_NOPREFIX
+#endif
 	ASJ(	jnz,	1, b)
+#ifdef __GNUC__
+	INTEL_NOPREFIX
+#endif
 	// do housekeeping every 8 rounds
 	AS2(	mov		esi, 0xf)
 	AS2(	and		esi, eax)
@@ -853,7 +871,13 @@ CRYPTOPP_NAKED static void CRYPTOPP_FASTCALL SHA512_SSE2_Transform(word64 *state
 #endif
 	AS2(	add		edi, 8*8)
 	AS2(	cmp		eax, 80)
+#ifdef __GNUC__
+	ATT_NOPREFIX
+#endif
 	ASJ(	jne,	1, b)
+#ifdef __GNUC__
+	INTEL_NOPREFIX
+#endif
 
 #define SSE2_CombineState(i)	\
 	AS2(	movdqa	xmm0, [edi+i*16])\
