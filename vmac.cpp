@@ -292,7 +292,13 @@ VMAC_Base::VHASH_Update_SSE2(const word64 *data, size_t blocksRemainingInWord64,
 	AS2(	psrlq	mm1, 32)
 	AS2(	paddq	mm5, mm1)
 	AS2(	cmp		edi, ebp)
+#ifdef __GNUC__
+	ATT_NOPREFIX
+#endif
 	ASJ(	jne,	0, b)
+#ifdef __GNUC__
+	INTEL_NOPREFIX
+#endif
 	ASL(1)
 	AS2(	paddq	mm5, mm2)
 #if CRYPTOPP_BOOL_X32
