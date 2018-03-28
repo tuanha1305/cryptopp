@@ -5,7 +5,7 @@
 config("cryptopp_config") {
 # cflags = [ "/WX-" ]
   cflags = []
-  if (is_win && !is_target_winuwp)
+  if (is_win && current_os != "winuwp")
   {
     cflags += ["/EHsc"]
   }
