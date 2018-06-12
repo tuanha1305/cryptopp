@@ -122,6 +122,8 @@ ipch/
 *.opensdf
 *.sdf
 *.cachefile
+*.db
+*.opendb
 
 # Visual Studio profiler
 *.psess
@@ -222,6 +224,7 @@ $RECYCLE.BIN/
 #############
 
 .DS_Store
+*.xcuserdatad/
 
 #############
 ## Python
@@ -269,3 +272,10 @@ pip-log.txt
 
 # Dependency file
 *.d
+
+
+#################
+## linux / codelite
+#################
+projects/linux/codelite/cryptopp/*.txt
+projects/linux/codelite/cryptopp/*.mk
