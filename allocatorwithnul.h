@@ -56,7 +56,7 @@ public:
 	//! \note size is the count of elements, and not the number of bytes
 	pointer allocate(size_type size, const void *ptr = NULL)
 	{
-		CRYPTOPP_UNUSED(ptr); assert(ptr == NULL);
+		CRYPTOPP_UNUSED(ptr); CRYPTOPP_ASSERT(ptr == NULL);
 		this->CheckSize(size);
 		if (size == 0)
 			return NULL;
@@ -85,7 +85,7 @@ public:
 	//!   UnalignedDeallocate() used if T_Align16 is false.
 	void deallocate(void *ptr, size_type size)
 	{
-		assert((ptr && size) || !(ptr || size));
+    CRYPTOPP_ASSERT((ptr && size) || !(ptr || size));
 		SecureWipeArray((pointer)ptr, size);
 
 #if CRYPTOPP_BOOL_ALIGN16
@@ -111,7 +111,7 @@ public:
 	//!   number of bytes.
 	pointer reallocate(T *oldPtr, size_type oldSize, size_type newSize, bool preserve)
 	{
-		assert((oldPtr && oldSize) || !(oldPtr || oldSize));
+    CRYPTOPP_ASSERT((oldPtr && oldSize) || !(oldPtr || oldSize));
 		return StandardReallocate(*this, oldPtr, oldSize, newSize, preserve);
 	}
 
