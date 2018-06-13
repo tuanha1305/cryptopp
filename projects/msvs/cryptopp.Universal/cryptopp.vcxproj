@@ -246,7 +246,14 @@
     <ClCompile Include="..\..\..\algparam.cpp" />
     <ClCompile Include="..\..\..\arc4.cpp" />
     <ClCompile Include="..\..\..\aria-simd.cpp" />
-    <ClCompile Include="..\..\..\aria.cpp" />
+    <ClCompile Include="..\..\..\aria.cpp">
+      <DisableSpecificWarnings Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">4456</DisableSpecificWarnings>
+      <DisableSpecificWarnings Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">4456</DisableSpecificWarnings>
+      <DisableSpecificWarnings Condition="'$(Configuration)|$(Platform)'=='Debug|ARM'">4456</DisableSpecificWarnings>
+      <DisableSpecificWarnings Condition="'$(Configuration)|$(Platform)'=='Release|ARM'">4456</DisableSpecificWarnings>
+      <DisableSpecificWarnings Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">4456</DisableSpecificWarnings>
+      <DisableSpecificWarnings Condition="'$(Configuration)|$(Platform)'=='Release|x64'">4456</DisableSpecificWarnings>
+    </ClCompile>
     <ClCompile Include="..\..\..\ariatab.cpp" />
     <ClCompile Include="..\..\..\asn.cpp" />
     <ClCompile Include="..\..\..\authenc.cpp" />
