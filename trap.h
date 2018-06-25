@@ -22,10 +22,14 @@
 #  include <sstream>
 #  if defined(UNIX_SIGNALS_AVAILABLE)
 #    include "ossig.h"
-#  elif defined(CRYPTOPP_WIN32_AVAILABLE) && !defined(__CYGWIN__)
+#  elif defined(CRYPTOPP_WIN32_AVAILABLE) && !defined(__CYGWIN__) && !defined(WINUWP)
      extern "C" __declspec(dllimport) void __stdcall DebugBreak();
      extern "C" __declspec(dllimport)  int __stdcall IsDebuggerPresent();
 #  endif
+#  ifdef WINUWP
+#    include <assert.h>
+#  endif //WINUWP
+
 #endif // CRYPTOPP_DEBUG
 
 // ************** run-time assertion ***************
@@ -71,7 +75,7 @@
       raise(SIGTRAP);                                             \
     }                                                             \
   }
-#elif CRYPTOPP_DEBUG && defined(CRYPTOPP_WIN32_AVAILABLE) && !defined(__CYGWIN__)
+#elif CRYPTOPP_DEBUG && defined(CRYPTOPP_WIN32_AVAILABLE) && !defined(__CYGWIN__) && !defined(WINUWP)
 #  define CRYPTOPP_ASSERT(exp) {                                  \
     if (!(exp)) {                                                 \
       std::ostringstream oss;                                     \
@@ -80,6 +84,19 @@
           << std::endl;                                           \
       std::cerr << oss.str();                                     \
       if (IsDebuggerPresent()) {DebugBreak();}                    \
+    }                                                             \
+  }
+#elif CRYPTOPP_DEBUG && defined(CRYPTOPP_WIN32_AVAILABLE) && defined(WINUWP)
+#  define CRYPTOPP_ASSERT_DEBUG_STRINGIZE_LINE(xLine) #xLine
+#  define CRYPTOPP_ASSERT(exp) {                                  \
+    if (!(exp)) {                                                 \
+      std::ostringstream oss;                                     \
+      oss << "Assertion failed: " << (char*)(__FILE__) << "("     \
+          << (int)(__LINE__) << "): " << (char*)(__FUNCTION__)    \
+          << std::endl;                                           \
+      std::cerr << oss.str();                                     \
+      auto falsefunc = []() {return false;};                      \
+      assert(falsefunc() && "Assertion failed: " ## __FILE__ ## "(" ## CRYPTOPP_ASSERT_DEBUG_STRINGIZE_LINE(__LINE__) ## ")" ); \
     }                                                             \
   }
 #endif // DEBUG and Unix or Windows
