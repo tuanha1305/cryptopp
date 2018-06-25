@@ -36,6 +36,11 @@
 
 #include "config.h"
 
+#ifdef __clang__
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wstring-conversion"
+#endif /* clang */
+
 #if CRYPTOPP_MSC_VERSION
 # pragma warning(push)
 # pragma warning(disable: 4702)
@@ -2311,5 +2316,9 @@ NAMESPACE_END
 #if CRYPTOPP_MSC_VERSION
 # pragma warning(pop)
 #endif
+
+#ifdef __clang__
+#pragma clang diagnostic pop
+#endif /* clang */
 
 #endif

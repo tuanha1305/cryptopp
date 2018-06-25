@@ -20,7 +20,9 @@
 
 // For definitions of VOID, PVOID, HANDLE, PHANDLE, etc.
 #if defined(CRYPTOPP_WIN32_AVAILABLE)
+#ifndef WIN32_LEAN_AND_MEAN
 #define WIN32_LEAN_AND_MEAN
+#endif //ndef WIN32_LEAN_AND_MEAN
 #include <windows.h>
 #endif
 

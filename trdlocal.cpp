@@ -11,7 +11,9 @@
 #include "stdcpp.h"
 
 #ifdef HAS_WINTHREADS
+#ifndef WIN32_LEAN_AND_MEAN
 #define WIN32_LEAN_AND_MEAN
+#endif //ndef WIN32_LEAN_AND_MEAN
 #include <windows.h>
 #endif
 

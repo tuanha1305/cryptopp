@@ -38,7 +38,9 @@
 #include <ctime>
 
 #ifdef CRYPTOPP_WIN32_AVAILABLE
+#ifndef WIN32_LEAN_AND_MEAN
 #define WIN32_LEAN_AND_MEAN
+#endif //ndef WIN32_LEAN_AND_MEAN
 #include <windows.h>
 #endif
 
