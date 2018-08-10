@@ -98,6 +98,7 @@ template <class BASE, class SCHEME_OPTIONS, class KEY>
 class ElGamalObjectImpl : public DL_ObjectImplBase<BASE, SCHEME_OPTIONS, KEY>, public ElGamalBase
 {
 public:
+
 	virtual ~ElGamalObjectImpl() {}
 
 	size_t FixedMaxPlaintextLength() const {return this->MaxPlaintextLength(FixedCiphertextLength());}
@@ -106,7 +107,7 @@ public:
 	const DL_GroupParameters_GFP & GetGroupParameters() const {return this->GetKey().GetGroupParameters();}
 
 	DecodingResult FixedLengthDecrypt(RandomNumberGenerator &rng, const byte *cipherText, byte *plainText) const
-		{return Decrypt(rng, cipherText, FixedCiphertextLength(), plainText);}
+		{return BASE::Decrypt(rng, cipherText, FixedCiphertextLength(), plainText);}
 
 protected:
 	const DL_KeyAgreementAlgorithm<Integer> & GetKeyAgreementAlgorithm() const {return *this;}
