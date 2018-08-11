@@ -143,7 +143,7 @@ if (BUILD_STATIC)
 	if (NOT CMAKE_VERSION VERSION_LESS 2.8.12)
 		target_include_directories(cryptopp-static PUBLIC
 			$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
-			$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}../>
+			$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/./../>
 			$<INSTALL_INTERFACE:include/cryptopp>)
 
 		export(TARGETS cryptopp-static
