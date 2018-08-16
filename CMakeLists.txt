@@ -147,7 +147,7 @@ if (BUILD_STATIC)
 			$<INSTALL_INTERFACE:include/cryptopp>)
 
 		export(TARGETS cryptopp-static
-			FILE cryptoCppStaticConfig.cmake
+			FILE cryptopp-staticConfig.cmake
 			EXPORT_LINK_INTERFACE_LIBRARIES
 		)
 
