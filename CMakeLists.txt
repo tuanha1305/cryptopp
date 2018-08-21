@@ -209,16 +209,6 @@ if(NOT MSVC)
 	endif()
 endif()
 
-# Targets, compatible with Crypto++ GNUMakefile
-if (BUILD_STATIC)
-	add_custom_target(static)
-	add_dependencies(static cryptopp-static)
-endif()
-if (BUILD_SHARED)
-	add_custom_target(dynamic)
-	add_dependencies(dynamic cryptopp-shared)
-endif()
-
 #============================================================================
 # Third-party libraries
 #============================================================================
