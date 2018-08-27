@@ -147,7 +147,7 @@ if (BUILD_STATIC)
 			$<INSTALL_INTERFACE:include/cryptopp>)
 
 		export(TARGETS cryptopp-static
-			FILE cryptoCppStaticConfig.cmake
+			FILE cryptopp-staticConfig.cmake
 			EXPORT_LINK_INTERFACE_LIBRARIES
 		)
 
@@ -207,16 +207,6 @@ if(NOT MSVC)
 				SOVERSION ${COMPAT_VERSION}
 				OUTPUT_NAME cryptopp)
 	endif()
-endif()
-
-# Targets, compatible with Crypto++ GNUMakefile
-if (BUILD_STATIC)
-	add_custom_target(static)
-	add_dependencies(static cryptopp-static)
-endif()
-if (BUILD_SHARED)
-	add_custom_target(dynamic)
-	add_dependencies(dynamic cryptopp-shared)
 endif()
 
 #============================================================================
